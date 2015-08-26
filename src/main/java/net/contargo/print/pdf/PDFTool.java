@@ -1,7 +1,12 @@
 package net.contargo.print.pdf;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+import java.nio.file.Files;
 import java.nio.file.Path;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -14,41 +19,12 @@ import java.util.function.BiConsumer;
  */
 public final class PDFTool {
 
-    private final PDFEngine engine;
+    private final PDFRenderer engine = new PDFBoxRenderer();
 
-    /**
-     * Creates a new instance, with the given engine.
-     *
-     * @param  engine  implementation to delegate work to
-     */
-    private PDFTool(PDFEngine engine) {
+    private PDFTool() {
 
-        this.engine = engine;
+        // OK
     }
-
-    /**
-     * Constructs a PDF replace instance, with a default, pre-defined PDF engine (currently Apache PDFBox).
-     *
-     * @return  a new instance
-     */
-    public static PDFTool newInstance() {
-
-        return newInstanceWithEngine(new PDFBoxEngine());
-    }
-
-
-    /**
-     * Constructs a new PDF replace instance, using the given PDF engine.
-     *
-     * @param  engine  implementation to use
-     *
-     * @return  a new instance
-     */
-    public static PDFTool newInstanceWithEngine(PDFEngine engine) {
-
-        return new PDFTool(engine);
-    }
-
 
     /**
      * Searches and replaces texts in the given file based on the provided map of search-replace pairs.
@@ -58,7 +34,7 @@ public final class PDFTool {
      *
      * @return  the interpolated result as a byte array, never {@code null}
      */
-    public byte[] searchAndReplaceText(Path path, Map<String, String> texts) {
+    private byte[] searchAndReplaceText(Path path, Map<String, String> texts) {
 
         BiConsumer<String, Object> assertNotNull = (String n, Object o) -> {
             if (o == null) {
@@ -70,5 +46,65 @@ public final class PDFTool {
         assertNotNull.accept("texts", texts);
 
         return engine.searchAndReplaceText(path, texts);
+    }
+
+
+    public static PDFBuilder fromTemplate(Path template) {
+
+        return new PDFBuilder(template);
+    }
+
+    public static final class PDFBuilder {
+
+        private final Path template;
+        private final Map<String, String> replacements;
+
+        public PDFBuilder(Path template) {
+
+            this.template = template;
+            this.replacements = new HashMap<>();
+        }
+
+        public PDF generate() {
+
+            return new PDF(new PDFTool().searchAndReplaceText(template, replacements));
+        }
+
+
+        public PDFBuilder withReplacement(String search, String replace) {
+
+            replacements.put(search, replace);
+
+            return this;
+        }
+
+
+        public PDFBuilder withReplacements(Map<String, String> replacements) {
+
+            this.replacements.putAll(replacements);
+
+            return this;
+        }
+    }
+
+    public static final class PDF {
+
+        private final byte[] data;
+
+        public PDF(byte[] data) {
+
+            this.data = data.clone();
+        }
+
+        public void save(Path target) throws IOException {
+
+            Files.write(target, data);
+        }
+
+
+        public void save(OutputStream output) throws IOException {
+
+            output.write(data);
+        }
     }
 }

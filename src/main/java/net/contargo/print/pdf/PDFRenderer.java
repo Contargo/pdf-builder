@@ -11,7 +11,7 @@ import java.util.Map;
  * @author  Olle Törnström - toernstroem@synyx.de
  * @since  0.1
  */
-public interface PDFEngine {
+public interface PDFRenderer {
 
     /**
      * Performs text interpolation using a map of search-replace pairs, on a PDF-template file, specified by the given
