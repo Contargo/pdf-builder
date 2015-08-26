@@ -1,43 +1,55 @@
 package net.contargo.print.pdf;
 
-import org.junit.Assert;
 import org.junit.Test;
 
+import org.junit.runner.RunWith;
+
+import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.nio.file.Path;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
 /**
  * @author  Olle Törnström - toernstroem@synyx.de
  */
+@RunWith(MockitoJUnitRunner.class)
 public class PDFReplaceTest {
 
-    @Test
-    public void ensureHasPublicStaticApiForSimpleSearchAndReplace() {
+    @Mock
+    private Path mockedPath;
 
-        Path nonNullPath = Mockito.mock(Path.class);
-        Map<String, String> nonNullTextMap = new HashMap<>();
+    @Mock
+    private Map<String, String> mockedTexts;
 
-        byte[] result = PDFReplace.searchAndReplaceText(nonNullPath, nonNullTextMap);
-
-        Assert.assertNotNull("Must not be null", result);
-    }
-
+    @Mock
+    private PDFEngine mockedPDFEngine;
 
     @Test(expected = IllegalArgumentException.class)
     public void ensureSearchAndReplaceTextRequiresPathParameter() {
 
-        PDFReplace.searchAndReplaceText(null, new HashMap<>());
+        PDFReplace.newInstance().searchAndReplaceText(null, mockedTexts);
     }
 
 
     @Test(expected = IllegalArgumentException.class)
     public void ensureSearchAndReplaceTextRequiresTextsParameter() {
 
-        PDFReplace.searchAndReplaceText(Mockito.mock(Path.class), null);
+        PDFReplace.newInstance().searchAndReplaceText(mockedPath, null);
+    }
+
+
+    @Test
+    public void ensureDoSearchAndReplaceDelegatesToPDFEngine() {
+
+        PDFReplace pdfReplace = PDFReplace.newInstanceWithEngine(mockedPDFEngine);
+
+        pdfReplace.searchAndReplaceText(mockedPath, mockedTexts);
+
+        Mockito.verify(mockedPDFEngine).searchAndReplaceText(mockedPath, mockedTexts);
     }
 }
