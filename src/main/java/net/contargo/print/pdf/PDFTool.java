@@ -9,12 +9,12 @@ import java.util.function.BiConsumer;
 
 
 /**
- * Main class for the PDF replacement tool, providing static utility methods to users.
+ * A utility tool for PDF creation and manipulation.
  *
  * @author  Olle Törnström - toernstroem@synyx.de
  * @since  0.1
  */
-public final class PDFReplace {
+public final class PDFTool {
 
     private final PDFEngine engine;
 
@@ -23,7 +23,7 @@ public final class PDFReplace {
      *
      * @param  engine  implementation to delegate work to
      */
-    private PDFReplace(PDFEngine engine) {
+    private PDFTool(PDFEngine engine) {
 
         this.engine = engine;
     }
@@ -33,7 +33,7 @@ public final class PDFReplace {
      *
      * @return  a new instance
      */
-    public static PDFReplace newInstance() {
+    public static PDFTool newInstance() {
 
         return newInstanceWithEngine(new PDFBoxEngine());
     }
@@ -46,9 +46,9 @@ public final class PDFReplace {
      *
      * @return  a new instance
      */
-    public static PDFReplace newInstanceWithEngine(PDFEngine engine) {
+    public static PDFTool newInstanceWithEngine(PDFEngine engine) {
 
-        return new PDFReplace(engine);
+        return new PDFTool(engine);
     }
 
 

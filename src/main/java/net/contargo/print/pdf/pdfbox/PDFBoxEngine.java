@@ -85,25 +85,4 @@ public class PDFBoxEngine implements PDFEngine {
 
         return result.clone();
     }
-
-
-    /**
-     * Replace all occurrences of placeholders in the given text by values defined in the given placeholder map.
-     * Placeholders contained in the text for which no corresponding value is mapped are left alone.
-     *
-     * @param  text
-     * @param  placeholderValues
-     *
-     * @return
-     */
-    private String replaceAll(String text, Map<String, String> placeholderValues) {
-
-        String result = text;
-
-        for (Map.Entry<String, String> placeholderValue : placeholderValues.entrySet()) {
-            result = result.replaceAll(placeholderValue.getKey(), placeholderValue.getValue());
-        }
-
-        return result;
-    }
 }

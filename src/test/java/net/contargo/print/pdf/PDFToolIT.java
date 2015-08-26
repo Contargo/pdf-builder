@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * @author  Olle Törnström - toernstroem@synyx.de
  */
-public class PDFReplaceIT {
+public class PDFToolIT {
 
     /*
      * This is, sadly, a very brittle test that does but little to actually prove that
@@ -40,7 +40,7 @@ public class PDFReplaceIT {
         Map<String, String> texts = new HashMap<>();
         texts.put("foo", "bar");
 
-        byte[] result = PDFReplace.newInstance().searchAndReplaceText(path, texts);
+        byte[] result = PDFTool.newInstance().searchAndReplaceText(path, texts);
 
         Assert.assertNotNull("No results: " + result, result);
         Assert.assertTrue("Empty results: " + Arrays.toString(result), result.length > 0);

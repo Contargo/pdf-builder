@@ -18,7 +18,7 @@ import java.util.Map;
  * @author  Olle Törnström - toernstroem@synyx.de
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PDFReplaceTest {
+public class PDFToolTest {
 
     @Mock
     private Path mockedPath;
@@ -32,21 +32,21 @@ public class PDFReplaceTest {
     @Test(expected = IllegalArgumentException.class)
     public void ensureSearchAndReplaceTextRequiresPathParameter() {
 
-        PDFReplace.newInstance().searchAndReplaceText(null, mockedTexts);
+        PDFTool.newInstance().searchAndReplaceText(null, mockedTexts);
     }
 
 
     @Test(expected = IllegalArgumentException.class)
     public void ensureSearchAndReplaceTextRequiresTextsParameter() {
 
-        PDFReplace.newInstance().searchAndReplaceText(mockedPath, null);
+        PDFTool.newInstance().searchAndReplaceText(mockedPath, null);
     }
 
 
     @Test
     public void ensureDoSearchAndReplaceDelegatesToPDFEngine() {
 
-        PDFReplace pdfReplace = PDFReplace.newInstanceWithEngine(mockedPDFEngine);
+        PDFTool pdfReplace = PDFTool.newInstanceWithEngine(mockedPDFEngine);
 
         pdfReplace.searchAndReplaceText(mockedPath, mockedTexts);
 
