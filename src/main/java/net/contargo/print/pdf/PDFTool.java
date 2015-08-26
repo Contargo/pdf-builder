@@ -1,7 +1,5 @@
 package net.contargo.print.pdf;
 
-import net.contargo.print.pdf.pdfbox.PDFBoxEngine;
-
 import java.nio.file.Path;
 
 import java.util.Map;

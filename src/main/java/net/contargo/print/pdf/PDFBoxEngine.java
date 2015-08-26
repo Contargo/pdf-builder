@@ -1,6 +1,4 @@
-package net.contargo.print.pdf.pdfbox;
-
-import net.contargo.print.pdf.PDFEngine;
+package net.contargo.print.pdf;
 
 import org.apache.pdfbox.cos.COSString;
 import org.apache.pdfbox.exceptions.COSVisitorException;
@@ -52,7 +50,7 @@ public class PDFBoxEngine implements PDFEngine {
                         PDFOperator op = (PDFOperator) currentToken;
 
                         if ("Tj".equals(op.getOperation()) && previousToken != null) {
-                            COSString cosString = ((COSString) previousToken);
+                            COSString cosString = (COSString) previousToken;
                             String text = cosString.getString();
 
                             for (Map.Entry<String, String> placeholderValue : texts.entrySet()) {

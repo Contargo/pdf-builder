@@ -42,16 +42,9 @@ public class PDFToolIT {
 
         byte[] result = PDFTool.newInstance().searchAndReplaceText(path, texts);
 
-        Assert.assertNotNull("No results: " + result, result);
+        Assert.assertNotNull("No results", result);
         Assert.assertTrue("Empty results: " + Arrays.toString(result), result.length > 0);
 
         Assert.assertTrue("Replace value `(bar) Tj` is missing", Arrays.toString(result).contains(barAsChars));
-    }
-
-
-    @Test
-    public void testName() throws Exception {
-
-        System.out.println(Arrays.toString("(bar) Tj".getBytes()));
     }
 }
