@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,29 +86,26 @@ public final class PDFBuilder {
      */
     protected byte[] renderQRCodes(byte[] pdf, List<QRSpec> specs) {
 
+        ASSERT_NOT_NULL.accept("pdf", pdf);
+        ASSERT_NOT_NULL.accept("specs", specs);
+
         List<QRCode> codes = specs.stream().map(s -> s.render(qrRenderer)).collect(Collectors.toList());
 
         return pdfRenderer.renderQRCodes(pdf, codes);
     }
 
-    public static final class QRCode {
+    protected static final class QRCode {
 
-        private final byte[] qrCode;
+        private final byte[] data;
         private final int x;
         private final int y;
 
-        public QRCode(byte[] qrCode, int x, int y) {
+        public QRCode(byte[] data, int x, int y) {
 
-            this.qrCode = qrCode;
+            this.data = data;
             this.x = x;
             this.y = y;
         }
-
-        public byte[] getQrCode() {
-
-            return qrCode;
-        }
-
 
         public int getX() {
 
@@ -121,21 +117,27 @@ public final class PDFBuilder {
 
             return y;
         }
+
+
+        public void save(OutputStream output) throws IOException {
+
+            output.write(data);
+        }
     }
 
     public static final class BuildablePDF {
 
         private final PDFBuilder builder;
-
         private final Path template;
         private final Map<String, String> replacements;
-        private QRSpec qr;
+        private final List<QRSpec> qrCodes;
 
         public BuildablePDF(Path template, PDFBuilder builder) {
 
             this.builder = builder;
             this.template = template;
             this.replacements = new HashMap<>();
+            this.qrCodes = new ArrayList<>();
         }
 
         public PDFDocument build() throws IOException {
@@ -144,7 +146,7 @@ public final class PDFBuilder {
 
             pdf = builder.renderFromTemplate(template);
             pdf = builder.renderSearchAndReplaceText(pdf, replacements);
-            pdf = builder.renderQRCodes(pdf, new ArrayList<>(Arrays.asList(qr)));
+            pdf = builder.renderQRCodes(pdf, qrCodes);
 
             return new PDFDocument(pdf);
         }
@@ -166,9 +168,9 @@ public final class PDFBuilder {
         }
 
 
-        public BuildablePDF withQRCode(QRSpec qr) {
+        public BuildablePDF withQRCode(QRSpec qrSpec) {
 
-            this.qr = qr;
+            this.qrCodes.add(qrSpec);
 
             return this;
         }
@@ -178,27 +180,62 @@ public final class PDFBuilder {
 
         private final String code;
 
-        private int x = 0;
-        private int y = 0;
-        private int width = 100;
-        private int height = 100;
+        private int x;
+        private int y;
+        private int size;
 
         private QRSpec(String code) {
 
             this.code = code;
+            this.x = 0;
+            this.y = 0;
+            this.size = 125;
         }
 
-        public static QRSpec valueOf(String code) {
+        public static QRSpec fromCode(String code) {
 
             return new QRSpec(code);
         }
 
 
-        public QRCode render(QRCodeRenderer renderer) {
+        private QRCode render(QRCodeRenderer renderer) {
 
-            byte[] qrCode = renderer.render(code, width, height);
+            byte[] qrCode = renderer.render(code, size);
 
             return new QRCode(qrCode, x, y);
+        }
+
+
+        public QRSpec withPositionY(int y) {
+
+            this.y = y;
+
+            return this;
+        }
+
+
+        public QRSpec withPositionX(int x) {
+
+            this.x = x;
+
+            return this;
+        }
+
+
+        public QRSpec withSize(int size) {
+
+            this.size = size;
+
+            return this;
+        }
+
+
+        public QRSpec withPosition(int x, int y) {
+
+            this.x = x;
+            this.y = y;
+
+            return this;
         }
     }
 

@@ -26,6 +26,11 @@ public class PDFToolQA {
     private static final String FOO_PDF = "foo.pdf";
     private static final String LETTER_PDF = "letter.pdf";
 
+    private static final String WITH_QR_CODE_CHECK = "check-with-qr-code.pdf";
+    private static final String TITLE_REPLACED_CHECK = "check-letter-title-replaced.pdf";
+    private static final String ONLY_BAR_CHECK = "check-no-foo-only-bar.pdf";
+    private static final String NO_CHANGE_CHECK = "check-no-change-still-foo.pdf";
+
     private static final Path RESOURCES = FileSystems.getDefault().getPath("src/test/resources");
 
     private final List<Path> targets = new ArrayList<>();
@@ -44,7 +49,8 @@ public class PDFToolQA {
         performGenerateWithoutReplacements();
         performGenerateWithReplacement();
         performGenerateWithReplacements();
-        perofrmGenerateWithQRCode();
+        performGenerateOneQRCode();
+        performGenerateMoreQRCodes();
 
         alertUserAndWaitForEnter();
 
@@ -57,7 +63,7 @@ public class PDFToolQA {
     private void performGenerateWithoutReplacements() throws IOException {
 
         Path source = RESOURCES.resolve(FOO_PDF);
-        Path target = RESOURCES.resolve("no-change-still-foo.pdf");
+        Path target = RESOURCES.resolve(NO_CHANGE_CHECK);
         PDFBuilder.fromTemplate(source).build().save(target);
         targets.add(target);
     }
@@ -66,7 +72,7 @@ public class PDFToolQA {
     private void performGenerateWithReplacement() throws IOException {
 
         Path source = RESOURCES.resolve(FOO_PDF);
-        Path target = RESOURCES.resolve("no-foo-only-bar.pdf");
+        Path target = RESOURCES.resolve(ONLY_BAR_CHECK);
         PDFBuilder.fromTemplate(source).withReplacement("foo", "bar").build().save(target);
         targets.add(target);
     }
@@ -75,7 +81,7 @@ public class PDFToolQA {
     private void performGenerateWithReplacements() throws IOException {
 
         Path source = RESOURCES.resolve(LETTER_PDF);
-        Path target = RESOURCES.resolve("letter-title-replaced.pdf");
+        Path target = RESOURCES.resolve(TITLE_REPLACED_CHECK);
 
         Map<String, String> replacements = new HashMap<>();
         replacements.put("TESTBRIEF", "REPLACED");
@@ -86,12 +92,29 @@ public class PDFToolQA {
     }
 
 
-    private void perofrmGenerateWithQRCode() throws IOException {
+    private void performGenerateOneQRCode() throws IOException {
 
         Path source = RESOURCES.resolve(FOO_PDF);
-        Path target = RESOURCES.resolve("with-qr-code.pdf");
+        Path target = RESOURCES.resolve(WITH_QR_CODE_CHECK);
 
-        PDFBuilder.fromTemplate(source).withQRCode(QRSpec.valueOf("code")).build().save(target);
+        PDFBuilder.fromTemplate(source)
+            .withQRCode(QRSpec.fromCode("code").withPositionY(-24).withPositionX(20).withSize(140))
+            .build()
+            .save(target);
+        targets.add(target);
+    }
+
+
+    private void performGenerateMoreQRCodes() throws IOException {
+
+        Path source = RESOURCES.resolve(FOO_PDF);
+        Path target = RESOURCES.resolve("check-with-more-qr-codes.pdf");
+
+        PDFBuilder.fromTemplate(source)
+            .withQRCode(QRSpec.fromCode("one").withPosition(20, -20))
+            .withQRCode(QRSpec.fromCode("two").withPositionX(-20).withPositionY(55).withSize(160))
+            .build()
+            .save(target);
         targets.add(target);
     }
 

@@ -14,12 +14,9 @@ import net.glxn.qrgen.javase.QRCode;
 public class QRGenRenderer implements QRCodeRenderer {
 
     @Override
-    public byte[] render(String code, int width, int height) {
+    public byte[] render(String code, int size) {
 
-        return QRCode.from(code)
-            .withErrorCorrection(ErrorCorrectionLevel.H)
-            .withSize(width, height)
-            .stream()
+        return QRCode.from(code).withErrorCorrection(ErrorCorrectionLevel.H).withSize(size, size).stream()
             .toByteArray();
     }
 }

@@ -10,12 +10,19 @@ import org.apache.pdfbox.pdfwriter.ContentStreamWriter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.common.PDStream;
+import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap;
+import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.apache.pdfbox.util.PDFOperator;
+
+import java.awt.image.BufferedImage;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
@@ -26,6 +33,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import javax.imageio.ImageIO;
 
 
 /**
@@ -137,7 +146,62 @@ public class PDFBoxRenderer implements PDFRenderer {
     @Override
     public byte[] renderQRCodes(byte[] pdf, List<QRCode> codes) {
 
-        // TODO Auto-generated method stub
-        return null;
+        ByteArrayInputStream documentIn = new ByteArrayInputStream(pdf);
+        ByteArrayOutputStream documentOut = new ByteArrayOutputStream();
+
+        try(PDDocument document = PDDocument.load(documentIn)) {
+            PDDocumentCatalog documentCatalog = document.getDocumentCatalog();
+            @SuppressWarnings("unchecked")
+            List<PDPage> pages = documentCatalog.getAllPages();
+
+            if (pages.size() > 1) {
+                throw new IllegalStateException("Cannot add QR code to document with more pages than 1.");
+            }
+
+            PDPage page = pages.iterator().next();
+            PDRectangle rectangle = page.getMediaBox();
+            PDPageContentStream contentStream = new PDPageContentStream(document, page, true, false);
+
+            for (QRCode qr : codes) {
+                addQRCode(document, rectangle, contentStream, qr);
+            }
+
+            contentStream.close();
+            document.save(documentOut);
+            document.close();
+        } catch (IOException | COSVisitorException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return documentOut.toByteArray();
+    }
+
+
+    private void addQRCode(PDDocument document, PDRectangle rectangle, PDPageContentStream contentStream, QRCode qrCode)
+        throws IOException {
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        qrCode.save(out);
+
+        InputStream in = new ByteArrayInputStream(out.toByteArray());
+        BufferedImage imageBuffer = ImageIO.read(in);
+        PDXObjectImage image = new PDPixelMap(document, imageBuffer);
+
+        float x = calculateCoordinate(qrCode.getX(), rectangle.getWidth(), image.getWidth());
+        float y = calculateCoordinate(qrCode.getY(), rectangle.getHeight(), image.getHeight());
+
+        contentStream.drawXObject(image, x, y, image.getWidth(), image.getHeight());
+    }
+
+
+    private float calculateCoordinate(int position, float pageBounds, int imageSize) {
+
+        // Negative positioning means flipped offset from other side of page
+        if (position < 0) {
+            return pageBounds - (Math.abs(position) + imageSize);
+        }
+
+        return position;
     }
 }

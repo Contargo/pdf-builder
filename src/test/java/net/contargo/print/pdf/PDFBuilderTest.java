@@ -96,14 +96,28 @@ public class PDFBuilderTest {
     public void ensureRenderQRCodesDelegatesToBothRenderers() throws Exception {
 
         byte[] pdf = new byte[0];
-        List<QRSpec> specs = new ArrayList<>(Arrays.asList(QRSpec.valueOf("foobar")));
+        List<QRSpec> specs = new ArrayList<>(Arrays.asList(QRSpec.fromCode("foobar")));
 
         new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(pdf, specs);
 
-        Mockito.verify(mockedQRCodeRenderer).render(Matchers.eq("foobar"), Matchers.anyInt(), Matchers.anyInt());
+        Mockito.verify(mockedQRCodeRenderer).render(Matchers.eq("foobar"), Matchers.anyInt());
 
         Mockito.verify(mockedPDFRenderer).renderQRCodes(Matchers.eq(pdf), qrCodesCaptor.capture());
 
         Assert.assertEquals("Wrong amount", 1, qrCodesCaptor.getValue().size());
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureRenderQRCodesThrowsOnNullPdfByteArray() {
+
+        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(null, Collections.emptyList());
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureRenderQRCodesThrowsOnNullQRCodesList() {
+
+        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(new byte[0], null);
     }
 }
