@@ -57,6 +57,12 @@ public final class PDFBuilder {
     /**
      * Delegates to the PDF renderer.
      *
+     * @param  template  to render from
+     *
+     * @return  the rendered PDF document as a byte array
+     *
+     * @throws  IOException  in case rendering fails
+     *
      * @see  PDFRenderer#renderFromTemplate(Path)
      */
     protected byte[] renderFromTemplate(Path template) throws IOException {
@@ -70,19 +76,32 @@ public final class PDFBuilder {
     /**
      * Delegates to the PDF renderer.
      *
+     * @param  pdf  document as byte array
+     * @param  text  map of search-replace pairs
+     *
+     * @return  the PDF document as a byte array
+     *
      * @see  PDFRenderer#renderSearchAndReplaceText(byte[], Map)
      */
-    protected byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> texts) {
+    protected byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> text) {
 
         ASSERT_NOT_NULL.accept("pdf", pdf);
-        ASSERT_NOT_NULL.accept("texts", texts);
+        ASSERT_NOT_NULL.accept("text", text);
 
-        return pdfRenderer.renderSearchAndReplaceText(pdf, texts);
+        return pdfRenderer.renderSearchAndReplaceText(pdf, text);
     }
 
 
     /**
      * Delegates to QR-code and PDF renderers.
+     *
+     * @param  pdf  document as byte array
+     * @param  specs  list of QR-code specifications to render and add
+     *
+     * @return  the PDF document as a byte array
+     *
+     * @see  QRCodeRenderer#render(String, int)
+     * @see  PDFRenderer#renderQRCodes(byte[], List)
      */
     protected byte[] renderQRCodes(byte[] pdf, List<QRSpec> specs) {
 

@@ -49,8 +49,6 @@ public interface PDFRenderer {
      * @param  codes  to render into the document
      *
      * @return  the changed PDF document byte array
-     *
-     * @throws  IOException  in case rendering failes
      */
     byte[] renderQRCodes(byte[] pdf, List<QRCode> codes);
 }
