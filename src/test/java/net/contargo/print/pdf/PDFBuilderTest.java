@@ -95,14 +95,16 @@ public class PDFBuilderTest {
     @Test
     public void ensureRenderQRCodesDelegatesToBothRenderers() throws Exception {
 
-        byte[] pdf = new byte[0];
+        byte[] bytes = new byte[0];
         List<QRSpec> specs = new ArrayList<>(Arrays.asList(QRSpec.fromCode("foobar")));
 
-        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(pdf, specs);
+        Mockito.when(mockedQRCodeRenderer.render(Matchers.anyString(), Matchers.anyInt())).thenReturn(bytes);
+
+        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(bytes, specs);
 
         Mockito.verify(mockedQRCodeRenderer).render(Matchers.eq("foobar"), Matchers.anyInt());
 
-        Mockito.verify(mockedPDFRenderer).renderQRCodes(Matchers.eq(pdf), qrCodesCaptor.capture());
+        Mockito.verify(mockedPDFRenderer).renderQRCodes(Matchers.eq(bytes), qrCodesCaptor.capture());
 
         Assert.assertEquals("Wrong amount", 1, qrCodesCaptor.getValue().size());
     }
