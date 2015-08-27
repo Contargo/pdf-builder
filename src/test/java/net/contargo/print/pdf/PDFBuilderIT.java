@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * @author  Olle Törnström - toernstroem@synyx.de
  */
-public class PDFToolIT {
+public class PDFBuilderIT {
 
     private static final Path RESOURCES = FileSystems.getDefault().getPath("src/test/resources");
 
@@ -47,7 +47,7 @@ public class PDFToolIT {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        PDFTool.fromTemplate(source).withReplacement("foo", "bar").generate().save(out);
+        PDFBuilder.fromTemplate(source).withReplacement("foo", "bar").build().save(out);
 
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         PDDocument targetPdDocument = PDDocument.load(in);

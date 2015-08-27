@@ -1,5 +1,7 @@
 package net.contargo.print.pdf;
 
+import net.contargo.print.pdf.PDFBuilder.QRCode;
+
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSString;
 import org.apache.pdfbox.exceptions.COSVisitorException;
@@ -11,6 +13,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDStream;
 import org.apache.pdfbox.util.PDFOperator;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -37,13 +40,30 @@ public class PDFBoxRenderer implements PDFRenderer {
     private static final String SHOW_STRING_OP = "Tj";
     private static final String SHOW_MORE_STRINGS_OP = "TJ";
 
+    @Override
+    public byte[] renderFromTemplate(Path template) throws IOException {
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            PDDocument.load(template.toFile()).save(out);
+        } catch (COSVisitorException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return out.toByteArray();
+    }
+
+
     @SuppressWarnings("unchecked")
     @Override
-    public byte[] searchAndReplaceText(Path path, Map<String, String> texts) {
+    public byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> texts) {
 
+        ByteArrayInputStream documentIn = new ByteArrayInputStream(pdf);
         ByteArrayOutputStream documentOut = new ByteArrayOutputStream();
 
-        try(PDDocument doc = PDDocument.load(path.toFile())) {
+        try(PDDocument doc = PDDocument.load(documentIn)) {
             PDDocumentCatalog documentCatalog = doc.getDocumentCatalog();
             List<PDPage> pages = documentCatalog.getAllPages();
 
@@ -111,5 +131,13 @@ public class PDFBoxRenderer implements PDFRenderer {
 
         cosString.reset();
         cosString.append(string.getBytes("ISO-8859-1"));
+    }
+
+
+    @Override
+    public byte[] renderQRCodes(byte[] pdf, List<QRCode> codes) {
+
+        // TODO Auto-generated method stub
+        return null;
     }
 }

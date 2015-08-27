@@ -1,4 +1,7 @@
-package net.contargo.print.pdf;
+package net.contargo.qa;
+
+import net.contargo.print.pdf.PDFBuilder;
+import net.contargo.print.pdf.PDFBuilder.QRSpec;
 
 import java.io.IOException;
 
@@ -20,6 +23,9 @@ import java.util.Map;
  */
 public class PDFToolQA {
 
+    private static final String FOO_PDF = "foo.pdf";
+    private static final String LETTER_PDF = "letter.pdf";
+
     private static final Path RESOURCES = FileSystems.getDefault().getPath("src/test/resources");
 
     private final List<Path> targets = new ArrayList<>();
@@ -38,6 +44,7 @@ public class PDFToolQA {
         performGenerateWithoutReplacements();
         performGenerateWithReplacement();
         performGenerateWithReplacements();
+        perofrmGenerateWithQRCode();
 
         alertUserAndWaitForEnter();
 
@@ -49,32 +56,42 @@ public class PDFToolQA {
 
     private void performGenerateWithoutReplacements() throws IOException {
 
-        Path source = RESOURCES.resolve("foo.pdf");
+        Path source = RESOURCES.resolve(FOO_PDF);
         Path target = RESOURCES.resolve("no-change-still-foo.pdf");
-        PDFTool.fromTemplate(source).generate().save(target);
+        PDFBuilder.fromTemplate(source).build().save(target);
         targets.add(target);
     }
 
 
     private void performGenerateWithReplacement() throws IOException {
 
-        Path source = RESOURCES.resolve("foo.pdf");
+        Path source = RESOURCES.resolve(FOO_PDF);
         Path target = RESOURCES.resolve("no-foo-only-bar.pdf");
-        PDFTool.fromTemplate(source).withReplacement("foo", "bar").generate().save(target);
+        PDFBuilder.fromTemplate(source).withReplacement("foo", "bar").build().save(target);
         targets.add(target);
     }
 
 
     private void performGenerateWithReplacements() throws IOException {
 
-        Path source = RESOURCES.resolve("letter.pdf");
+        Path source = RESOURCES.resolve(LETTER_PDF);
         Path target = RESOURCES.resolve("letter-title-replaced.pdf");
 
         Map<String, String> replacements = new HashMap<>();
         replacements.put("TESTBRIEF", "REPLACED");
         replacements.put("Testbrief", "Replaced");
 
-        PDFTool.fromTemplate(source).withReplacements(replacements).generate().save(target);
+        PDFBuilder.fromTemplate(source).withReplacements(replacements).build().save(target);
+        targets.add(target);
+    }
+
+
+    private void perofrmGenerateWithQRCode() throws IOException {
+
+        Path source = RESOURCES.resolve(FOO_PDF);
+        Path target = RESOURCES.resolve("with-qr-code.pdf");
+
+        PDFBuilder.fromTemplate(source).withQRCode(QRSpec.valueOf("code")).build().save(target);
         targets.add(target);
     }
 
