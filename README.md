@@ -1,15 +1,18 @@
-PDF Replace
+PDF Builder
 ===========
 
-A tool that provides a pragmatic solution to PDF-generation, by
-providing a fixes feature-set for PDF data-interpolation, or
-simply put search-and-replace.
+A library tool that provides a pragmatic solution to PDF-generation
+and manipulation.
 
-## Getting started
+## General Idea
 
-The user provides a custom PDF-template with placeholders for text
-and image replacements. Please see the Java API for more detailed
-information on the available features.
+Instead of being a platform, with template authoring and such
+features, this library aids in more simple text interpolation,
+in already existing PDF templates.
+
+The intent is aimed at the 80% use cases - there's a pretty
+PDF document, where some values, or placeholder, can be easily
+replaced.
 
 ## Development
 

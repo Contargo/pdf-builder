@@ -118,6 +118,6 @@ public class PDFBuilderTest {
     @Test(expected = IllegalArgumentException.class)
     public void ensureRenderQRCodesThrowsOnNullQRCodesList() {
 
-        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(new byte[0], null);
+        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(new byte[0], (List<QRSpec>) null);
     }
 }

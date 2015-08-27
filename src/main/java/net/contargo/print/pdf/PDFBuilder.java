@@ -94,6 +94,9 @@ public final class PDFBuilder {
         return pdfRenderer.renderQRCodes(pdf, codes);
     }
 
+    /**
+     * A rendered QR code, providing it's byte array and position information.
+     */
     protected static final class QRCode {
 
         private final byte[] data;
@@ -102,7 +105,7 @@ public final class PDFBuilder {
 
         public QRCode(byte[] data, int x, int y) {
 
-            this.data = data;
+            this.data = data.clone();
             this.x = x;
             this.y = y;
         }
@@ -125,6 +128,9 @@ public final class PDFBuilder {
         }
     }
 
+    /**
+     * A chaining API for specifying a PDF to build.
+     */
     public static final class BuildablePDF {
 
         private final PDFBuilder builder;
@@ -140,6 +146,13 @@ public final class PDFBuilder {
             this.qrCodes = new ArrayList<>();
         }
 
+        /**
+         * Builds a PDF from this builder.
+         *
+         * @return  the built PDF document
+         *
+         * @throws  IOException  in case building failed
+         */
         public PDFDocument build() throws IOException {
 
             byte[] pdf;
@@ -152,6 +165,14 @@ public final class PDFBuilder {
         }
 
 
+        /**
+         * Add a search-replace pair to this builder.
+         *
+         * @param  search  string to search for
+         * @param  replace  string to replace with
+         *
+         * @return  this builder for chaining
+         */
         public BuildablePDF withReplacement(String search, String replace) {
 
             replacements.put(search, replace);
@@ -160,6 +181,13 @@ public final class PDFBuilder {
         }
 
 
+        /**
+         * Adds a map of search-replace pairs to this builder.
+         *
+         * @param  replacements  map of string pairs to search and replace with
+         *
+         * @return  this builder for chaining
+         */
         public BuildablePDF withReplacements(Map<String, String> replacements) {
 
             this.replacements.putAll(replacements);
@@ -168,6 +196,13 @@ public final class PDFBuilder {
         }
 
 
+        /**
+         * Add a QR code specification to this builder.
+         *
+         * @param  qrSpec  describing the QR code to add
+         *
+         * @return  this builder for chaining
+         */
         public BuildablePDF withQRCode(QRSpec qrSpec) {
 
             this.qrCodes.add(qrSpec);
@@ -176,6 +211,9 @@ public final class PDFBuilder {
         }
     }
 
+    /**
+     * Describing a QR code to render.
+     */
     public static final class QRSpec {
 
         private final String code;
@@ -189,9 +227,16 @@ public final class PDFBuilder {
             this.code = code;
             this.x = 0;
             this.y = 0;
-            this.size = 125;
+            this.size = 125; // NOSONAR
         }
 
+        /**
+         * Creates a new default specification with the given code.
+         *
+         * @param  code  for the QR-graphics
+         *
+         * @return  this specification for chaining
+         */
         public static QRSpec fromCode(String code) {
 
             return new QRSpec(code);
@@ -206,6 +251,13 @@ public final class PDFBuilder {
         }
 
 
+        /**
+         * Set the y position for this specification.
+         *
+         * @param  y  position
+         *
+         * @return  this specification for chaining
+         */
         public QRSpec withPositionY(int y) {
 
             this.y = y;
@@ -214,6 +266,13 @@ public final class PDFBuilder {
         }
 
 
+        /**
+         * Set the x position for this specification.
+         *
+         * @param  x  position
+         *
+         * @return  this specification for chaining
+         */
         public QRSpec withPositionX(int x) {
 
             this.x = x;
@@ -222,14 +281,14 @@ public final class PDFBuilder {
         }
 
 
-        public QRSpec withSize(int size) {
-
-            this.size = size;
-
-            return this;
-        }
-
-
+        /**
+         * Set the x and y position of this specification.
+         *
+         * @param  x  position
+         * @param  y  position
+         *
+         * @return  this specification for chaining
+         */
         public QRSpec withPosition(int x, int y) {
 
             this.x = x;
@@ -237,8 +296,26 @@ public final class PDFBuilder {
 
             return this;
         }
+
+
+        /**
+         * Set the size of this specification.
+         *
+         * @param  size  to set
+         *
+         * @return  this specification for chaining
+         */
+        public QRSpec withSize(int size) {
+
+            this.size = size;
+
+            return this;
+        }
     }
 
+    /**
+     * A rendered PDF document.
+     */
     public static final class PDFDocument {
 
         private final byte[] data;

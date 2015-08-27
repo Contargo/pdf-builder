@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 
 import java.nio.file.Path;
 
@@ -116,8 +115,7 @@ public class PDFBoxRenderer implements PDFRenderer {
     }
 
 
-    private void searchAndReplaceCOSArray(Map<String, String> texts, COSArray cosArray) throws IOException,
-        UnsupportedEncodingException {
+    private void searchAndReplaceCOSArray(Map<String, String> texts, COSArray cosArray) throws IOException {
 
         String text = StreamSupport.stream(cosArray.spliterator(), false).filter(e -> e instanceof COSString).map(s ->
                     ((COSString) s).getString()).collect(Collectors.joining());
@@ -129,8 +127,7 @@ public class PDFBoxRenderer implements PDFRenderer {
     }
 
 
-    private void searchAndReplaceCOSString(Map<String, String> texts, COSString cosString) throws IOException,
-        UnsupportedEncodingException {
+    private void searchAndReplaceCOSString(Map<String, String> texts, COSString cosString) throws IOException {
 
         String string = cosString.getString();
 
