@@ -2,6 +2,7 @@ package net.contargo.qa;
 
 import net.contargo.print.pdf.PDFBuilder;
 import net.contargo.print.pdf.PDFBuilder.QRSpec;
+import net.contargo.print.pdf.RenderException;
 
 import java.io.IOException;
 
@@ -21,7 +22,7 @@ import java.util.Map;
  * @author  Olle Törnström - toernstroem@synyx.de
  * @since  0.1
  */
-public class PDFToolQA {
+public class PDFBuilderQA {
 
     private static final String FOO_PDF = "foo.pdf";
     private static final String LETTER_PDF = "letter.pdf";
@@ -38,13 +39,13 @@ public class PDFToolQA {
     /*
      * Starter-method for the QA-scenarios.
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, RenderException {
 
-        new PDFToolQA().execute();
+        new PDFBuilderQA().execute();
     }
 
 
-    private void execute() throws IOException {
+    private void execute() throws IOException, RenderException {
 
         performGenerateWithoutReplacements();
         performGenerateWithReplacement();
@@ -60,7 +61,7 @@ public class PDFToolQA {
     }
 
 
-    private void performGenerateWithoutReplacements() throws IOException {
+    private void performGenerateWithoutReplacements() throws IOException, RenderException {
 
         Path source = RESOURCES.resolve(FOO_PDF);
         Path target = RESOURCES.resolve(NO_CHANGE_CHECK);
@@ -69,7 +70,7 @@ public class PDFToolQA {
     }
 
 
-    private void performGenerateWithReplacement() throws IOException {
+    private void performGenerateWithReplacement() throws IOException, RenderException {
 
         Path source = RESOURCES.resolve(FOO_PDF);
         Path target = RESOURCES.resolve(ONLY_BAR_CHECK);
@@ -78,7 +79,7 @@ public class PDFToolQA {
     }
 
 
-    private void performGenerateWithReplacements() throws IOException {
+    private void performGenerateWithReplacements() throws IOException, RenderException {
 
         Path source = RESOURCES.resolve(LETTER_PDF);
         Path target = RESOURCES.resolve(TITLE_REPLACED_CHECK);
@@ -92,7 +93,7 @@ public class PDFToolQA {
     }
 
 
-    private void performGenerateOneQRCode() throws IOException {
+    private void performGenerateOneQRCode() throws IOException, RenderException {
 
         Path source = RESOURCES.resolve(FOO_PDF);
         Path target = RESOURCES.resolve(WITH_QR_CODE_CHECK);
@@ -105,7 +106,7 @@ public class PDFToolQA {
     }
 
 
-    private void performGenerateMoreQRCodes() throws IOException {
+    private void performGenerateMoreQRCodes() throws IOException, RenderException {
 
         Path source = RESOURCES.resolve(FOO_PDF);
         Path target = RESOURCES.resolve("check-with-more-qr-codes.pdf");

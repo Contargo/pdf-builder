@@ -27,7 +27,7 @@ public class PDFBuilderIT {
     private static final Path RESOURCES = FileSystems.getDefault().getPath("src/test/resources");
 
     @Test
-    public void ensureReplacesTextInPDF() throws URISyntaxException, IOException {
+    public void ensureReplacesTextInPDF() throws URISyntaxException, IOException, RenderException {
 
         Path source = RESOURCES.resolve("foo.pdf");
         Assert.assertTrue("Missing " + source, source.toFile().exists());

@@ -2,8 +2,6 @@ package net.contargo.print.pdf;
 
 import net.contargo.print.pdf.PDFBuilder.QRCode;
 
-import java.io.IOException;
-
 import java.nio.file.Path;
 
 import java.util.List;
@@ -25,9 +23,9 @@ public interface PDFRenderer {
      *
      * @return  a PDF document as a byte array
      *
-     * @throws  IOException  in case there was an error consuming the template
+     * @throws  RenderException  in case a failure occurs during rendering
      */
-    byte[] renderFromTemplate(Path template) throws IOException;
+    byte[] renderFromTemplate(Path template) throws RenderException;
 
 
     /**
@@ -38,8 +36,10 @@ public interface PDFRenderer {
      * @param  text  map of search-replace pairs
      *
      * @return  the interpolated PDF file as a byte array
+     *
+     * @throws  RenderException  in case a failure occurs during rendering
      */
-    byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> text);
+    byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> text) throws RenderException;
 
 
     /**
@@ -49,6 +49,8 @@ public interface PDFRenderer {
      * @param  codes  to render into the document
      *
      * @return  the changed PDF document byte array
+     *
+     * @throws  RenderException  in case a failure occurs during rendering
      */
-    byte[] renderQRCodes(byte[] pdf, List<QRCode> codes);
+    byte[] renderQRCodes(byte[] pdf, List<QRCode> codes) throws RenderException;
 }

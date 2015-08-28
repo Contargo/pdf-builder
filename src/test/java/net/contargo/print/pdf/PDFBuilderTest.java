@@ -16,8 +16,6 @@ import org.mockito.Mockito;
 
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-
 import java.nio.file.Path;
 
 import java.util.ArrayList;
@@ -50,7 +48,7 @@ public class PDFBuilderTest {
 
 
     @Test
-    public void ensureDelegatesRenderFromTemplateToPDFRenderer() throws IOException {
+    public void ensureDelegatesRenderFromTemplateToPDFRenderer() throws RenderException {
 
         new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderFromTemplate(mockedTemplate);
 
@@ -59,14 +57,14 @@ public class PDFBuilderTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureRenderFromTemplateThrowsOnNull() throws IOException {
+    public void ensureRenderFromTemplateThrowsOnNull() throws RenderException {
 
         new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderFromTemplate(null);
     }
 
 
     @Test
-    public void ensureRenderSearchAndReplaceTextDelegatesToPDFRenderer() {
+    public void ensureRenderSearchAndReplaceTextDelegatesToPDFRenderer() throws RenderException {
 
         byte[] pdf = new byte[0];
         Map<String, String> text = Collections.emptyMap();
@@ -78,7 +76,7 @@ public class PDFBuilderTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureRenderSearchAndReplaceTextThrowsOnNullPdfByteArray() {
+    public void ensureRenderSearchAndReplaceTextThrowsOnNullPdfByteArray() throws RenderException {
 
         new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderSearchAndReplaceText(null,
             Collections.emptyMap());
@@ -86,7 +84,7 @@ public class PDFBuilderTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureRenderSearchAndReplaceTextThrowsOnNullTextMap() {
+    public void ensureRenderSearchAndReplaceTextThrowsOnNullTextMap() throws RenderException {
 
         new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderSearchAndReplaceText(new byte[0], null);
     }
@@ -111,14 +109,14 @@ public class PDFBuilderTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureRenderQRCodesThrowsOnNullPdfByteArray() {
+    public void ensureRenderQRCodesThrowsOnNullPdfByteArray() throws RenderException {
 
         new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(null, Collections.emptyList());
     }
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureRenderQRCodesThrowsOnNullQRCodesList() {
+    public void ensureRenderQRCodesThrowsOnNullQRCodesList() throws RenderException {
 
         new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(new byte[0], (List<QRSpec>) null);
     }

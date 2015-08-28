@@ -11,11 +11,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 
 /**
- * A utility tool for PDF creation and manipulation.
+ * A PDF utility with a simple and intuitive public API for PDF document generation.
+ *
+ * <p>This builder aims to provide a high-level practical syntax, for quick and easy PDF document generation.</p>
+ *
+ * <p>Below is a simple usage example:</p>
+ *
+ * <pre>
+   Path docs = FileSystems.getDefault().getPath("documents");
+   Path template = docs.resolve("template.pdf");
+   Path result = docs.resolve("result.pdf");
+
+   PDFBuilder.fromTemplate(template)
+       .withReplacement("${name}", name)
+       .withReplacement("${email}", email)
+       .withQRCode(QRSpec.fromCode(code).withPosition(20, 50).withSize(145))
+       .build()
+       .save(result);
+ * </pre>
  *
  * @author  Olle Törnström - toernstroem@synyx.de
  * @since  0.1
@@ -61,11 +77,11 @@ public final class PDFBuilder {
      *
      * @return  the rendered PDF document as a byte array
      *
-     * @throws  IOException  in case rendering fails
+     * @throws  RenderException  in case rendering fails
      *
      * @see  PDFRenderer#renderFromTemplate(Path)
      */
-    protected byte[] renderFromTemplate(Path template) throws IOException {
+    protected byte[] renderFromTemplate(Path template) throws RenderException {
 
         ASSERT_NOT_NULL.accept("template", template);
 
@@ -81,9 +97,11 @@ public final class PDFBuilder {
      *
      * @return  the PDF document as a byte array
      *
+     * @throws  RenderException  in case rendering fails
+     *
      * @see  PDFRenderer#renderSearchAndReplaceText(byte[], Map)
      */
-    protected byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> text) {
+    protected byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> text) throws RenderException {
 
         ASSERT_NOT_NULL.accept("pdf", pdf);
         ASSERT_NOT_NULL.accept("text", text);
@@ -100,15 +118,22 @@ public final class PDFBuilder {
      *
      * @return  the PDF document as a byte array
      *
+     * @throws  RenderException  in case rendering fails
+     *
      * @see  QRCodeRenderer#render(String, int)
      * @see  PDFRenderer#renderQRCodes(byte[], List)
      */
-    protected byte[] renderQRCodes(byte[] pdf, List<QRSpec> specs) {
+    protected byte[] renderQRCodes(byte[] pdf, List<QRSpec> specs) throws RenderException {
 
         ASSERT_NOT_NULL.accept("pdf", pdf);
         ASSERT_NOT_NULL.accept("specs", specs);
 
-        List<QRCode> codes = specs.stream().map(s -> s.render(qrRenderer)).collect(Collectors.toList());
+        List<QRCode> codes = new ArrayList<>();
+
+        // No stream operation, the QRRenderer throws a checked exception.
+        for (QRSpec spec : specs) {
+            codes.add(spec.render(qrRenderer));
+        }
 
         return pdfRenderer.renderQRCodes(pdf, codes);
     }
@@ -170,9 +195,9 @@ public final class PDFBuilder {
          *
          * @return  the built PDF document
          *
-         * @throws  IOException  in case building failed
+         * @throws  RenderException  in case rendering fails, describing the originating cause of failure
          */
-        public PDFDocument build() throws IOException {
+        public PDFDocument build() throws RenderException {
 
             byte[] pdf;
 
@@ -262,7 +287,7 @@ public final class PDFBuilder {
         }
 
 
-        private QRCode render(QRCodeRenderer renderer) {
+        private QRCode render(QRCodeRenderer renderer) throws RenderException {
 
             byte[] qrCode = renderer.render(code, size);
 

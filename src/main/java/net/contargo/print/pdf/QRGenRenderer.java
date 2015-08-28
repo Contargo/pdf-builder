@@ -14,9 +14,16 @@ import net.glxn.qrgen.javase.QRCode;
 public class QRGenRenderer implements QRCodeRenderer {
 
     @Override
-    public byte[] render(String code, int size) {
+    public byte[] render(String code, int size) throws RenderException {
 
-        return QRCode.from(code).withErrorCorrection(ErrorCorrectionLevel.H).withSize(size, size).stream()
-            .toByteArray();
+        try {
+            return QRCode.from(code)
+                .withErrorCorrection(ErrorCorrectionLevel.H)
+                .withSize(size, size)
+                .stream()
+                .toByteArray();
+        } catch (Exception e) {
+            throw new RenderException("QR-code render failed.", e);
+        }
     }
 }

@@ -18,3 +18,16 @@ replaced.
 
 This is a pretty straight-forward Java-project, use `mvn` to build,
 test and deploy. Happy hacking!
+
+### Practical Use
+
+In order to help with quality assurance (QA) and template development,
+there's a practial executable  Java tool to be found under
+`src/test/net/contargo/qa/PDFBuilderQA.java`. This will generate some
+PDF documents, that a human can view and evaluate - ensuring that
+everything looks ok.
+
+Feel free to play around with this tool, to try out the features of
+the PDF builder.
+
+Happy hacking!

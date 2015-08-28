@@ -49,15 +49,14 @@ public class PDFBoxRenderer implements PDFRenderer {
     private static final String SHOW_MORE_STRINGS_OP = "TJ";
 
     @Override
-    public byte[] renderFromTemplate(Path template) throws IOException {
+    public byte[] renderFromTemplate(Path template) throws RenderException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {
             PDDocument.load(template.toFile()).save(out);
-        } catch (COSVisitorException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (COSVisitorException | IOException e) {
+            throw new RenderException("Parsing the template failed.", e);
         }
 
         return out.toByteArray();
@@ -66,7 +65,7 @@ public class PDFBoxRenderer implements PDFRenderer {
 
     @SuppressWarnings("unchecked")
     @Override
-    public byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> texts) {
+    public byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> texts) throws RenderException {
 
         ByteArrayInputStream documentIn = new ByteArrayInputStream(pdf);
         ByteArrayOutputStream documentOut = new ByteArrayOutputStream();
@@ -107,8 +106,7 @@ public class PDFBoxRenderer implements PDFRenderer {
 
             doc.save(documentOut);
         } catch (IOException | COSVisitorException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RenderException("Search and replace PDF text failed.", e);
         }
 
         return documentOut.toByteArray();
@@ -141,7 +139,7 @@ public class PDFBoxRenderer implements PDFRenderer {
 
 
     @Override
-    public byte[] renderQRCodes(byte[] pdf, List<QRCode> codes) {
+    public byte[] renderQRCodes(byte[] pdf, List<QRCode> codes) throws RenderException {
 
         ByteArrayInputStream documentIn = new ByteArrayInputStream(pdf);
         ByteArrayOutputStream documentOut = new ByteArrayOutputStream();
@@ -167,8 +165,7 @@ public class PDFBoxRenderer implements PDFRenderer {
             document.save(documentOut);
             document.close();
         } catch (IOException | COSVisitorException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RenderException("Rendering QR-codes in PDF failed.", e);
         }
 
         return documentOut.toByteArray();
