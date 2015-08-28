@@ -1,13 +1,11 @@
 package net.contargo.print.pdf;
 
-import java.io.IOException;
-
-
 /**
  * A general exception denoting that something went wrong during `rendering`. This is a one-for-all checked exception
  * that users of the library will receive, if something goes wrong, which can not be attributed to API-misuse.
  *
- * <p>The exception always provides the source, or originating, failure (most likely an {@link IOException}).</p>
+ * <p>The exception always provides the source, or originating, failure (most likely an {@link java.io.IOException}).
+ * </p>
  *
  * @author  Olle Törnström - toernstroem@synyx.de
  * @since  0.1

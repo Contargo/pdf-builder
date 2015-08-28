@@ -2,6 +2,7 @@ package net.contargo.print.pdf;
 
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
+import net.glxn.qrgen.core.exception.QRGenerationException;
 import net.glxn.qrgen.javase.QRCode;
 
 
@@ -22,7 +23,7 @@ public class QRGenRenderer implements QRCodeRenderer {
                 .withSize(size, size)
                 .stream()
                 .toByteArray();
-        } catch (Exception e) {
+        } catch (QRGenerationException e) {
             throw new RenderException("QR-code render failed.", e);
         }
     }
