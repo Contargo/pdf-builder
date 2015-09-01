@@ -10,9 +10,21 @@ Instead of being a platform, with template authoring and such
 features, this library aids in more simple text interpolation,
 in already existing PDF templates.
 
-The intent is aimed at the 80% use cases - there's a pretty
-PDF document, where some values, or placeholder, can be easily
-replaced.
+The intent is aimed at the 80% use case - there is already a
+pretty PDF document where some values, or placeholders, just
+need to be replaced by the program.
+
+Well good for you, that's just what this library does.
+
+### Current features
+
+* Reading and parsing a file into a PDF byte array. Usefull for
+  streaming or attachement in emails.
+  
+* String interpolation of search-replace pairs, or from a string
+  map.
+  
+* Rendering of QR-codes, with size and position specification.
 
 ## Development
 
