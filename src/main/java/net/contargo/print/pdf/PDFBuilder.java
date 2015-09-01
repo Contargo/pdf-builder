@@ -26,8 +26,8 @@ import java.util.function.BiConsumer;
    Path result = docs.resolve("result.pdf");
 
    PDFBuilder.fromTemplate(template)
-       .withReplacement("${name}", name)
-       .withReplacement("${email}", email)
+       .withReplacement("@name@", name)
+       .withReplacement("@email@", email)
        .withQRCode(QRSpec.fromCode(code).withPosition(20, 50).withSize(145))
        .build()
        .save(result);

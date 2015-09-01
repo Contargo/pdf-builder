@@ -44,6 +44,8 @@ import javax.imageio.ImageIO;
  */
 public class PDFBoxRenderer implements PDFRenderer {
 
+    private static final String ISO_8859_1 = "ISO-8859-1";
+
     // http://partners.adobe.com/public/developer/en/pdf/PDFReference.pdf
     private static final String SHOW_STRING_OP = "Tj";
     private static final String SHOW_MORE_STRINGS_OP = "TJ";
@@ -53,8 +55,8 @@ public class PDFBoxRenderer implements PDFRenderer {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        try {
-            PDDocument.load(template.toFile()).save(out);
+        try(PDDocument doc = PDDocument.load(template.toFile())) {
+            doc.save(out);
         } catch (COSVisitorException | IOException e) {
             throw new RenderException("Parsing the template failed.", e);
         }
@@ -71,39 +73,8 @@ public class PDFBoxRenderer implements PDFRenderer {
         ByteArrayOutputStream documentOut = new ByteArrayOutputStream();
 
         try(PDDocument doc = PDDocument.load(documentIn)) {
-            PDDocumentCatalog documentCatalog = doc.getDocumentCatalog();
-            List<PDPage> pages = documentCatalog.getAllPages();
-
-            for (PDPage page : pages) {
-                PDFStreamParser parser = new PDFStreamParser(page.getContents());
-                parser.parse();
-
-                List<?> tokens = parser.getTokens();
-
-                Object previousToken = null;
-
-                for (Object current : tokens) {
-                    if (current instanceof PDFOperator) {
-                        PDFOperator op = (PDFOperator) current;
-                        String operation = op.getOperation();
-
-                        if (SHOW_STRING_OP.equals(operation) && previousToken != null) {
-                            searchAndReplaceCOSString(texts, (COSString) previousToken);
-                        } else if (SHOW_MORE_STRINGS_OP.equals(operation) && previousToken != null) {
-                            searchAndReplaceCOSArray(texts, (COSArray) previousToken);
-                        }
-                    }
-
-                    previousToken = current;
-                }
-
-                PDStream updatedStream = new PDStream(doc);
-                OutputStream out = updatedStream.createOutputStream();
-                ContentStreamWriter tokenWriter = new ContentStreamWriter(out);
-                tokenWriter.writeTokens(tokens);
-                page.setContents(updatedStream);
-            }
-
+            List<PDPage> pages = doc.getDocumentCatalog().getAllPages();
+            parsePages(texts, doc, pages);
             doc.save(documentOut);
         } catch (IOException | COSVisitorException e) {
             throw new RenderException("Search and replace PDF text failed.", e);
@@ -113,28 +84,96 @@ public class PDFBoxRenderer implements PDFRenderer {
     }
 
 
-    private void searchAndReplaceCOSArray(Map<String, String> texts, COSArray cosArray) throws IOException {
+    private void parsePages(Map<String, String> texts, PDDocument doc, List<PDPage> pages) throws IOException {
 
-        String text = StreamSupport.stream(cosArray.spliterator(), false).filter(e -> e instanceof COSString).map(s ->
-                    ((COSString) s).getString()).collect(Collectors.joining());
-
-        COSString cosString = new COSString(text);
-        searchAndReplaceCOSString(texts, cosString);
-        cosArray.clear();
-        cosArray.add(cosString);
+        for (PDPage page : pages) {
+            parsePage(texts, doc, page);
+        }
     }
 
 
-    private void searchAndReplaceCOSString(Map<String, String> texts, COSString cosString) throws IOException {
+    private void parsePage(Map<String, String> texts, PDDocument doc, PDPage page) throws IOException {
 
-        String string = cosString.getString();
+        PDFStreamParser parser = new PDFStreamParser(page.getContents());
+        parser.parse();
 
-        for (Entry<String, String> e : texts.entrySet()) {
-            string = string.replaceAll(e.getKey(), e.getValue());
+        List<?> tokens = parser.getTokens();
+        updateTokens(texts, tokens);
+
+        PDStream updatedStream = new PDStream(doc);
+
+        try(OutputStream out = updatedStream.createOutputStream()) {
+            ContentStreamWriter tokenWriter = new ContentStreamWriter(out);
+            tokenWriter.writeTokens(tokens);
+            page.setContents(updatedStream);
+        }
+    }
+
+
+    private void updateTokens(Map<String, String> texts, List<?> tokens) throws IOException {
+
+        Object previous = null;
+
+        for (Object current : tokens) {
+            if (current instanceof PDFOperator) {
+                updateToken(texts, previous, (PDFOperator) current);
+            }
+
+            previous = current;
+        }
+    }
+
+
+    private void updateToken(Map<String, String> texts, Object args, PDFOperator operator) throws IOException {
+
+        if (args == null) {
+            return;
         }
 
+        String operation = operator.getOperation();
+
+        if (SHOW_STRING_OP.equals(operation)) {
+            searchAndReplaceInCOSString(texts, (COSString) args);
+        } else if (SHOW_MORE_STRINGS_OP.equals(operation)) {
+            searchAndReplaceInCOSArray(texts, (COSArray) args);
+        }
+    }
+
+
+    private void searchAndReplaceInCOSString(Map<String, String> texts, COSString cosString) throws IOException {
+
+        String string = cosString.getString();
+        String result = searchAndReplace(texts, string);
         cosString.reset();
-        cosString.append(string.getBytes("ISO-8859-1"));
+        cosString.append(result.getBytes(ISO_8859_1));
+    }
+
+
+    private String searchAndReplace(Map<String, String> texts, String orig) {
+
+        String result = orig;
+
+        for (Entry<String, String> e : texts.entrySet()) {
+            result = result.replaceAll(e.getKey(), e.getValue());
+        }
+
+        return result;
+    }
+
+
+    private void searchAndReplaceInCOSArray(Map<String, String> texts, COSArray cosArray) throws IOException {
+
+        String string = StreamSupport.stream(cosArray.spliterator(), false)
+            .filter(e ->
+                    e instanceof COSString)
+            .map(s ->
+                    ((COSString) s).getString())
+            .collect(Collectors.joining());
+
+        String result = searchAndReplace(texts, string);
+        COSString cosString = new COSString(result.getBytes(ISO_8859_1));
+        cosArray.clear();
+        cosArray.add(cosString);
     }
 
 
@@ -155,15 +194,14 @@ public class PDFBoxRenderer implements PDFRenderer {
 
             PDPage page = pages.iterator().next();
             PDRectangle rectangle = page.getMediaBox();
-            PDPageContentStream contentStream = new PDPageContentStream(document, page, true, false);
 
-            for (QRCode qr : codes) {
-                addQRCode(document, rectangle, contentStream, qr);
+            try(PDPageContentStream contentStream = new PDPageContentStream(document, page, true, false)) {
+                for (QRCode qr : codes) {
+                    addQRCode(document, rectangle, contentStream, qr);
+                }
             }
 
-            contentStream.close();
             document.save(documentOut);
-            document.close();
         } catch (IOException | COSVisitorException e) {
             throw new RenderException("Rendering QR-codes in PDF failed.", e);
         }

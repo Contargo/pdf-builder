@@ -34,11 +34,11 @@ public class PDFBuilderIT {
 
         PDFTextStripper textStripper = new PDFTextStripper();
 
-        PDDocument sourcePdDocument = PDDocument.load(source.toFile());
-        String textOnlyBefore = textStripper.getText(sourcePdDocument);
-
-        Assert.assertTrue("Search value `foo` exists before", textOnlyBefore.contains("foo"));
-        Assert.assertFalse("Replace value `bar` present before", textOnlyBefore.contains("bar"));
+        try(PDDocument sourcePdDocument = PDDocument.load(source.toFile())) {
+            String textOnlyBefore = textStripper.getText(sourcePdDocument);
+            Assert.assertTrue("Search value `foo` exists before", textOnlyBefore.contains("foo"));
+            Assert.assertFalse("Replace value `bar` present before", textOnlyBefore.contains("bar"));
+        }
 
         Map<String, String> texts = new HashMap<>();
         texts.put("foo", "bar");
@@ -50,10 +50,12 @@ public class PDFBuilderIT {
         PDFBuilder.fromTemplate(source).withReplacement("foo", "bar").build().save(out);
 
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        PDDocument targetPdDocument = PDDocument.load(in);
-        String textOnlyAfter = textStripper.getText(targetPdDocument);
 
-        Assert.assertFalse("Search value `foo` exists after", textOnlyAfter.contains("foo"));
-        Assert.assertTrue("Replace value `bar` is missing", textOnlyAfter.contains("bar"));
+        try(PDDocument targetPdDocument = PDDocument.load(in)) {
+            String textOnlyAfter = textStripper.getText(targetPdDocument);
+
+            Assert.assertFalse("Search value `foo` exists after", textOnlyAfter.contains("foo"));
+            Assert.assertTrue("Replace value `bar` is missing", textOnlyAfter.contains("bar"));
+        }
     }
 }

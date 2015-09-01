@@ -32,7 +32,8 @@ public interface PDFRenderer {
      * Performs text interpolation using a map of search-replace pairs, on a PDF-template file, specified by the given
      * path.
      *
-     * @param  pdf  document byte array, to interpolate in
+     * @param  pdf  document byte array, to interpolate in. Must not be copied or detached, since it is assumed that the
+     *              renderer is part of a internal process.
      * @param  text  map of search-replace pairs
      *
      * @return  the interpolated PDF file as a byte array
@@ -45,7 +46,8 @@ public interface PDFRenderer {
     /**
      * Renders the list of given QR codes into the provided pdf document.
      *
-     * @param  pdf  document byte array, to render on
+     * @param  pdf  document byte array, to render on. Must not necessarily be copied since it is assumed that the
+     *              renderer is only part of an internal process.
      * @param  codes  to render into the document
      *
      * @return  the changed PDF document byte array

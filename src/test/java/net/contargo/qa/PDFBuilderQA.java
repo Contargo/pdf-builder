@@ -52,6 +52,7 @@ public class PDFBuilderQA {
         performGenerateWithReplacements();
         performGenerateOneQRCode();
         performGenerateMoreQRCodes();
+        performReplaceAndQRCodesGeneration();
 
         alertUserAndWaitForEnter();
 
@@ -114,6 +115,25 @@ public class PDFBuilderQA {
         PDFBuilder.fromTemplate(source)
             .withQRCode(QRSpec.fromCode("one").withPosition(20, -20))
             .withQRCode(QRSpec.fromCode("two").withPositionX(-20).withPositionY(55).withSize(160))
+            .build()
+            .save(target);
+        targets.add(target);
+    }
+
+
+    private void performReplaceAndQRCodesGeneration() throws IOException, RenderException {
+
+        Path source = RESOURCES.resolve(LETTER_PDF);
+        Path target = RESOURCES.resolve("check-with-replaced-titles-and-qr-codes.pdf");
+
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("TESTBRIEF", "REPLACED AGAIN!");
+        replacements.put("Testbrief", "Replaced Again!");
+
+        PDFBuilder.fromTemplate(source)
+            .withReplacements(replacements)
+            .withQRCode(QRSpec.fromCode("Hi there!").withPosition(30, 220))
+            .withQRCode(QRSpec.fromCode("Hello again!").withPosition(-13, 220))
             .build()
             .save(target);
         targets.add(target);
