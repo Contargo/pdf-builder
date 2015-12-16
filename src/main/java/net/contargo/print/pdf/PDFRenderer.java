@@ -2,7 +2,7 @@ package net.contargo.print.pdf;
 
 import net.contargo.print.pdf.PDFBuilder.QRCode;
 
-import java.nio.file.Path;
+import java.io.InputStream;
 
 import java.util.List;
 import java.util.Map;
@@ -19,13 +19,13 @@ public interface PDFRenderer {
     /**
      * Renders a PDF document byte array, by consuming the given PDF template (document) path.
      *
-     * @param  template  path to consume
+     * @param  template  the input stream to consume
      *
      * @return  a PDF document as a byte array
      *
      * @throws  RenderException  in case a failure occurs during rendering
      */
-    byte[] renderFromTemplate(Path template) throws RenderException;
+    byte[] renderFromTemplate(InputStream template) throws RenderException;
 
 
     /**

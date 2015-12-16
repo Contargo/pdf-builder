@@ -12,6 +12,8 @@ package net.contargo.print.pdf;
  */
 public final class RenderException extends Exception {
 
+    private static final long serialVersionUID = 6167566822228335521L;
+
     /**
      * Constructs a new exception with the given message and originating cause.
      *

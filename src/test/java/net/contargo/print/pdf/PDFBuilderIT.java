@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.net.URISyntaxException;
 
@@ -27,7 +28,7 @@ public class PDFBuilderIT {
     private static final Path RESOURCES = FileSystems.getDefault().getPath("src/test/resources");
 
     @Test
-    public void ensureReplacesTextInPDF() throws URISyntaxException, IOException, RenderException {
+    public void ensureReplacesTextInPDFUsingPathAsTemplate() throws URISyntaxException, IOException, RenderException {
 
         Path source = RESOURCES.resolve("foo.pdf");
         Assert.assertTrue("Missing " + source, source.toFile().exists());
@@ -46,6 +47,42 @@ public class PDFBuilderIT {
         RESOURCES.resolve("foo-replaced.pdf");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        PDFBuilder.fromTemplate(source).withReplacement("foo", "bar").build().save(out);
+
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+
+        try(PDDocument targetPdDocument = PDDocument.load(in)) {
+            String textOnlyAfter = textStripper.getText(targetPdDocument);
+
+            Assert.assertFalse("Search value `foo` exists after", textOnlyAfter.contains("foo"));
+            Assert.assertTrue("Replace value `bar` is missing", textOnlyAfter.contains("bar"));
+        }
+    }
+
+
+    @Test
+    public void ensureReplacesTextInPDFUsingInputStreamAsTemplate() throws URISyntaxException, IOException,
+        RenderException {
+
+        InputStream source = this.getClass().getResourceAsStream("/foo.pdf");
+        Assert.assertTrue("Missing " + source, source != null);
+
+        PDFTextStripper textStripper = new PDFTextStripper();
+
+        try(PDDocument sourcePdDocument = PDDocument.load(source)) {
+            String textOnlyBefore = textStripper.getText(sourcePdDocument);
+            Assert.assertTrue("Search value `foo` exists before", textOnlyBefore.contains("foo"));
+            Assert.assertFalse("Replace value `bar` present before", textOnlyBefore.contains("bar"));
+        }
+
+        Map<String, String> texts = new HashMap<>();
+        texts.put("foo", "bar");
+
+        RESOURCES.resolve("foo-replaced.pdf");
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        source = this.getClass().getResourceAsStream("/foo.pdf");
 
         PDFBuilder.fromTemplate(source).withReplacement("foo", "bar").build().save(out);
 

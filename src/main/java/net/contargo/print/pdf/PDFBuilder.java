@@ -1,6 +1,7 @@
 package net.contargo.print.pdf;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import java.nio.file.Files;
@@ -33,7 +34,14 @@ import java.util.function.BiConsumer;
        .save(result);
  * </pre>
  *
+ * <p>Instead of {@link Path} also {@link InputStream} can be used as input.</p>
+ *
+ * <pre>
+   Path template = this.getClass().getResourceAsStream("/documents/template.pdf");
+ * </pre>
+ *
  * @author  Olle Törnström - toernstroem@synyx.de
+ * @author  Slaven Travar - slaven.travar@pta.de
  * @since  0.1
  */
 public final class PDFBuilder {
@@ -56,11 +64,40 @@ public final class PDFBuilder {
     /**
      * Returns a builder for PDF documents, based on a given template path.
      *
-     * @param  template  path to base the builder of, never {@code null}
+     * @param  template  path to base the builder on, never {@code null}
      *
      * @return  a new builder instance
+     *
+     * @throws  RenderException  in case building pdf fails
      */
-    public static BuildablePDF fromTemplate(Path template) {
+    public static BuildablePDF fromTemplate(Path template) throws RenderException {
+
+        ASSERT_NOT_NULL.accept("template", template);
+
+        PDFBuilder builder = new PDFBuilder(new PDFBoxRenderer(), new QRGenRenderer());
+
+        InputStream in;
+
+        try {
+            in = Files.newInputStream(template);
+        } catch (IOException e) {
+            throw new RenderException("Opening file as input stream failed.", e);
+        }
+
+        return new BuildablePDF(in, builder);
+    }
+
+
+    /**
+     * Returns a builder for PDF documents, based on a given template input stream.
+     *
+     * @param  template  input stream to base the builder on, never {@code null}
+     *
+     * @return  a new builder instance
+     *
+     * @since  0.2
+     */
+    public static BuildablePDF fromTemplate(InputStream template) {
 
         ASSERT_NOT_NULL.accept("template", template);
 
@@ -79,9 +116,9 @@ public final class PDFBuilder {
      *
      * @throws  RenderException  in case rendering fails
      *
-     * @see  PDFRenderer#renderFromTemplate(Path)
+     * @see  PDFRenderer#renderFromTemplate(InputStream)
      */
-    protected byte[] renderFromTemplate(Path template) throws RenderException {
+    protected byte[] renderFromTemplate(InputStream template) throws RenderException {
 
         ASSERT_NOT_NULL.accept("template", template);
 
@@ -178,11 +215,11 @@ public final class PDFBuilder {
     public static final class BuildablePDF {
 
         private final PDFBuilder builder;
-        private final Path template;
+        private final InputStream template;
         private final Map<String, String> replacements;
         private final List<QRSpec> qrCodes;
 
-        public BuildablePDF(Path template, PDFBuilder builder) {
+        public BuildablePDF(InputStream template, PDFBuilder builder) {
 
             this.builder = builder;
             this.template = template;

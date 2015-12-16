@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Path;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,11 +49,11 @@ public class PDFBoxRenderer implements PDFRenderer {
     private static final String SHOW_MORE_STRINGS_OP = "TJ";
 
     @Override
-    public byte[] renderFromTemplate(Path template) throws RenderException {
+    public byte[] renderFromTemplate(InputStream template) throws RenderException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        try(PDDocument doc = PDDocument.load(template.toFile())) {
+        try(PDDocument doc = PDDocument.load(template)) {
             doc.save(out);
         } catch (COSVisitorException | IOException e) {
             throw new RenderException("Parsing the template failed.", e);
@@ -164,10 +162,8 @@ public class PDFBoxRenderer implements PDFRenderer {
     private void searchAndReplaceInCOSArray(Map<String, String> texts, COSArray cosArray) throws IOException {
 
         String string = StreamSupport.stream(cosArray.spliterator(), false)
-            .filter(e ->
-                    e instanceof COSString)
-            .map(s ->
-                    ((COSString) s).getString())
+            .filter(e -> e instanceof COSString)
+            .map(s -> ((COSString) s).getString())
             .collect(Collectors.joining());
 
         String result = searchAndReplace(texts, string);

@@ -16,6 +16,8 @@ import org.mockito.Mockito;
 
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.InputStream;
+
 import java.nio.file.Path;
 
 import java.util.ArrayList;
@@ -36,14 +38,23 @@ public class PDFBuilderTest {
     @Mock
     QRCodeRenderer mockedQRCodeRenderer;
     @Mock
-    Path mockedTemplate;
+    InputStream mockedTemplate;
     @Captor
     ArgumentCaptor<List<QRCode>> qrCodesCaptor;
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureThrowsOnNullTemplateArgument() {
+    public void ensureThrowsOnNullTemplatePathArgument() throws RenderException {
 
-        PDFBuilder.fromTemplate(null);
+        Path template = null;
+        PDFBuilder.fromTemplate(template);
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureThrowsOnNullTemplateInputStreamArgument() throws RenderException {
+
+        InputStream template = null;
+        PDFBuilder.fromTemplate(template);
     }
 
 
