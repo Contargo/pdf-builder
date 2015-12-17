@@ -5,7 +5,7 @@
 
     <groupId>net.contargo.print</groupId>
     <artifactId>pdf-builder</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.1</version>
 
     <name>PDF Builder</name>
 
@@ -35,7 +35,7 @@
     <scm>
         <connection>scm:git:ssh://git@contargo/lib/pdf-builder</connection>
         <developerConnection>scm:git:ssh://git@contargo/lib/pdf-builder</developerConnection>
-        <tag>HEAD</tag>
+        <tag>pdf-builder-0.2.1</tag>
     </scm>
 
     <distributionManagement>
