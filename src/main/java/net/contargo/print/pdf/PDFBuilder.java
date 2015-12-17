@@ -67,24 +67,14 @@ public final class PDFBuilder {
      * @param  template  path to base the builder on, never {@code null}
      *
      * @return  a new builder instance
-     *
-     * @throws  RenderException  in case building pdf fails
      */
-    public static BuildablePDF fromTemplate(Path template) throws RenderException {
+    public static BuildablePDF fromTemplate(Path template) {
 
         ASSERT_NOT_NULL.accept("template", template);
 
         PDFBuilder builder = new PDFBuilder(new PDFBoxRenderer(), new QRGenRenderer());
 
-        InputStream in;
-
-        try {
-            in = Files.newInputStream(template);
-        } catch (IOException e) {
-            throw new RenderException("Opening file as input stream failed.", e);
-        }
-
-        return new BuildablePDF(in, builder);
+        return new BuildablePDF(template, builder);
     }
 
 
@@ -104,6 +94,25 @@ public final class PDFBuilder {
         PDFBuilder builder = new PDFBuilder(new PDFBoxRenderer(), new QRGenRenderer());
 
         return new BuildablePDF(template, builder);
+    }
+
+
+    /**
+     * Delegates to the PDF renderer.
+     *
+     * @param  template  to render from
+     *
+     * @return  the rendered PDF document as a byte array
+     *
+     * @throws  RenderException  in case rendering fails
+     *
+     * @see  PDFRenderer#renderFromTemplate(Path)
+     */
+    protected byte[] renderFromTemplate(Path template) throws RenderException {
+
+        ASSERT_NOT_NULL.accept("template", template);
+
+        return pdfRenderer.renderFromTemplate(template);
     }
 
 
@@ -215,14 +224,24 @@ public final class PDFBuilder {
     public static final class BuildablePDF {
 
         private final PDFBuilder builder;
-        private final InputStream template;
+        private Path templateAsPath;
+        private InputStream templateAsStream;
         private final Map<String, String> replacements;
         private final List<QRSpec> qrCodes;
+
+        public BuildablePDF(Path template, PDFBuilder builder) {
+
+            this.builder = builder;
+            this.templateAsPath = template;
+            this.replacements = new HashMap<>();
+            this.qrCodes = new ArrayList<>();
+        }
+
 
         public BuildablePDF(InputStream template, PDFBuilder builder) {
 
             this.builder = builder;
-            this.template = template;
+            this.templateAsStream = template;
             this.replacements = new HashMap<>();
             this.qrCodes = new ArrayList<>();
         }
@@ -238,7 +257,9 @@ public final class PDFBuilder {
 
             byte[] pdf;
 
-            pdf = builder.renderFromTemplate(template);
+            pdf = templateAsPath != null ? builder.renderFromTemplate(templateAsPath)
+                                         : builder.renderFromTemplate(templateAsStream);
+
             pdf = builder.renderSearchAndReplaceText(pdf, replacements);
             pdf = builder.renderQRCodes(pdf, qrCodes);
 

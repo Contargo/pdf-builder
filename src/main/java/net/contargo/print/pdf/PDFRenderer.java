@@ -4,6 +4,8 @@ import net.contargo.print.pdf.PDFBuilder.QRCode;
 
 import java.io.InputStream;
 
+import java.nio.file.Path;
+
 import java.util.List;
 import java.util.Map;
 
@@ -12,9 +14,22 @@ import java.util.Map;
  * Provides PDF creation, interpolation and rendering capabilities.
  *
  * @author  Olle Törnström - toernstroem@synyx.de
+ * @author  Slaven Travar - slaven.travar@pta.de
  * @since  0.1
  */
 public interface PDFRenderer {
+
+    /**
+     * Renders a PDF document byte array, by consuming the given PDF template (document) path.
+     *
+     * @param  template  path to consume
+     *
+     * @return  a PDF document as a byte array
+     *
+     * @throws  RenderException  in case a failure occurs during rendering
+     */
+    byte[] renderFromTemplate(Path template) throws RenderException;
+
 
     /**
      * Renders a PDF document byte array, by consuming the given PDF template (document) path.
@@ -24,6 +39,8 @@ public interface PDFRenderer {
      * @return  a PDF document as a byte array
      *
      * @throws  RenderException  in case a failure occurs during rendering
+     *
+     * @since  0.2
      */
     byte[] renderFromTemplate(InputStream template) throws RenderException;
 

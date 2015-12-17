@@ -29,6 +29,7 @@ import java.util.Map;
 
 /**
  * @author  Olle Törnström - toernstroem@synyx.de
+ * @author  Slaven Travar - slaven.travar@pta.de
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PDFBuilderTest {
@@ -38,12 +39,14 @@ public class PDFBuilderTest {
     @Mock
     QRCodeRenderer mockedQRCodeRenderer;
     @Mock
-    InputStream mockedTemplate;
+    Path mockedPathTemplate;
+    @Mock
+    Path mockedInputStreamTemplate;
     @Captor
     ArgumentCaptor<List<QRCode>> qrCodesCaptor;
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureThrowsOnNullTemplatePathArgument() throws RenderException {
+    public void ensureThrowsOnNullPathTemplateArgument() {
 
         Path template = null;
         PDFBuilder.fromTemplate(template);
@@ -51,7 +54,7 @@ public class PDFBuilderTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureThrowsOnNullTemplateInputStreamArgument() throws RenderException {
+    public void ensureThrowsOnNullStreamTemplateArgument() {
 
         InputStream template = null;
         PDFBuilder.fromTemplate(template);
@@ -59,18 +62,36 @@ public class PDFBuilderTest {
 
 
     @Test
-    public void ensureDelegatesRenderFromTemplateToPDFRenderer() throws RenderException {
+    public void ensureDelegatesRenderFromPathTemplateToPDFRenderer() throws RenderException {
 
-        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderFromTemplate(mockedTemplate);
+        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderFromTemplate(mockedPathTemplate);
 
-        Mockito.verify(mockedPDFRenderer).renderFromTemplate(mockedTemplate);
+        Mockito.verify(mockedPDFRenderer).renderFromTemplate(mockedPathTemplate);
+    }
+
+
+    @Test
+    public void ensureDelegatesRenderFromStreamTemplateToPDFRenderer() throws RenderException {
+
+        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderFromTemplate(mockedInputStreamTemplate);
+
+        Mockito.verify(mockedPDFRenderer).renderFromTemplate(mockedInputStreamTemplate);
     }
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureRenderFromTemplateThrowsOnNull() throws RenderException {
+    public void ensureRenderFromPathTemplateThrowsOnNull() throws RenderException {
 
-        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderFromTemplate(null);
+        Path template = null;
+        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderFromTemplate(template);
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureRenderFromStreamTemplateThrowsOnNull() throws RenderException {
+
+        InputStream template = null;
+        new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderFromTemplate(template);
     }
 
 

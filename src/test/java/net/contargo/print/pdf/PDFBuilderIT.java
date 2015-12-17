@@ -22,6 +22,7 @@ import java.util.Map;
 
 /**
  * @author  Olle Törnström - toernstroem@synyx.de
+ * @author  Slaven Travar - slaven.travar@pta.de
  */
 public class PDFBuilderIT {
 
@@ -65,34 +66,37 @@ public class PDFBuilderIT {
     public void ensureReplacesTextInPDFUsingInputStreamAsTemplate() throws URISyntaxException, IOException,
         RenderException {
 
-        InputStream source = this.getClass().getResourceAsStream("/foo.pdf");
-        Assert.assertTrue("Missing " + source, source != null);
+        try(InputStream source = this.getClass().getResourceAsStream("/foo.pdf")) {
+            Assert.assertTrue("Missing " + source, source != null);
 
-        PDFTextStripper textStripper = new PDFTextStripper();
+            PDFTextStripper textStripper = new PDFTextStripper();
 
-        try(PDDocument sourcePdDocument = PDDocument.load(source)) {
-            String textOnlyBefore = textStripper.getText(sourcePdDocument);
-            Assert.assertTrue("Search value `foo` exists before", textOnlyBefore.contains("foo"));
-            Assert.assertFalse("Replace value `bar` present before", textOnlyBefore.contains("bar"));
-        }
+            try(PDDocument sourcePdDocument = PDDocument.load(source)) {
+                String textOnlyBefore = textStripper.getText(sourcePdDocument);
+                Assert.assertTrue("Search value `foo` exists before", textOnlyBefore.contains("foo"));
+                Assert.assertFalse("Replace value `bar` present before", textOnlyBefore.contains("bar"));
+            }
 
-        Map<String, String> texts = new HashMap<>();
-        texts.put("foo", "bar");
+            Map<String, String> texts = new HashMap<>();
+            texts.put("foo", "bar");
 
-        RESOURCES.resolve("foo-replaced.pdf");
+            RESOURCES.resolve("foo-replaced.pdf");
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        source = this.getClass().getResourceAsStream("/foo.pdf");
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        PDFBuilder.fromTemplate(source).withReplacement("foo", "bar").build().save(out);
+            // reload stream, since PDDocument.load() has closed it
+            try(InputStream sourceTemplate = this.getClass().getResourceAsStream("/foo.pdf")) {
+                PDFBuilder.fromTemplate(sourceTemplate).withReplacement("foo", "bar").build().save(out);
 
-        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+                ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 
-        try(PDDocument targetPdDocument = PDDocument.load(in)) {
-            String textOnlyAfter = textStripper.getText(targetPdDocument);
+                try(PDDocument targetPdDocument = PDDocument.load(in)) {
+                    String textOnlyAfter = textStripper.getText(targetPdDocument);
 
-            Assert.assertFalse("Search value `foo` exists after", textOnlyAfter.contains("foo"));
-            Assert.assertTrue("Replace value `bar` is missing", textOnlyAfter.contains("bar"));
+                    Assert.assertFalse("Search value `foo` exists after", textOnlyAfter.contains("foo"));
+                    Assert.assertTrue("Replace value `bar` is missing", textOnlyAfter.contains("bar"));
+                }
+            }
         }
     }
 }

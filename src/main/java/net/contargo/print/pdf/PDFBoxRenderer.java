@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import java.nio.file.Path;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,6 +40,7 @@ import javax.imageio.ImageIO;
  * A PDF renderer implementation using the Apache PDFBox project.
  *
  * @author  Olle Törnström - toernstroem@synyx.de
+ * @author  Slaven Travar - slaven.travar@pta.de
  * @since  0.1
  */
 public class PDFBoxRenderer implements PDFRenderer {
@@ -47,6 +50,21 @@ public class PDFBoxRenderer implements PDFRenderer {
     // http://partners.adobe.com/public/developer/en/pdf/PDFReference.pdf
     private static final String SHOW_STRING_OP = "Tj";
     private static final String SHOW_MORE_STRINGS_OP = "TJ";
+
+    @Override
+    public byte[] renderFromTemplate(Path template) throws RenderException {
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try(PDDocument doc = PDDocument.load(template.toFile())) {
+            doc.save(out);
+        } catch (COSVisitorException | IOException e) {
+            throw new RenderException("Parsing the template failed.", e);
+        }
+
+        return out.toByteArray();
+    }
+
 
     @Override
     public byte[] renderFromTemplate(InputStream template) throws RenderException {
