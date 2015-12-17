@@ -99,4 +99,40 @@ public class PDFBuilderIT {
             }
         }
     }
+
+
+    /**
+     * Ensure fix for Bug #13987.
+     */
+    @Test
+    public void ensureReplacesTextWithRougeBackslash() throws URISyntaxException, IOException, RenderException {
+
+        final String backslash = new String(new byte[] { 0x5C });
+
+        Path source = RESOURCES.resolve("foo.pdf");
+        Assert.assertTrue("Missing " + source, source.toFile().exists());
+
+        PDFTextStripper textStripper = new PDFTextStripper();
+
+        try(PDDocument sourcePdDocument = PDDocument.load(source.toFile())) {
+            String textOnlyBefore = textStripper.getText(sourcePdDocument);
+            Assert.assertTrue("Search value `foo` exists before", textOnlyBefore.contains("foo"));
+            Assert.assertFalse("Replace value `bar\\` present before", textOnlyBefore.contains("bar" + backslash));
+        }
+
+        RESOURCES.resolve("foo-replaced.pdf");
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        PDFBuilder.fromTemplate(source).withReplacement("foo", "bar" + backslash).build().save(out);
+
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+
+        try(PDDocument targetPdDocument = PDDocument.load(in)) {
+            String textOnlyAfter = textStripper.getText(targetPdDocument);
+
+            Assert.assertFalse("Search value `foo` exists after", textOnlyAfter.contains("foo"));
+            Assert.assertTrue("Replace value `bar` is missing", textOnlyAfter.contains("bar" + backslash));
+        }
+    }
 }

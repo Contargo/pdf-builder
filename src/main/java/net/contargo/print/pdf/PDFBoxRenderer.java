@@ -170,7 +170,10 @@ public class PDFBoxRenderer implements PDFRenderer {
         String result = orig;
 
         for (Entry<String, String> e : texts.entrySet()) {
-            result = result.replaceAll(e.getKey(), e.getValue());
+            // escape any rouge backslashes in value, since the replacement fails on any unknown/missing escaped
+            // characters following the slash - that way slashes are replaced literally - see bug #13987
+            String value = e.getValue() != null ? e.getValue().replace("\\", "\\\\") : null;
+            result = result.replaceAll(e.getKey(), value);
         }
 
         return result;
