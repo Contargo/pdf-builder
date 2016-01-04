@@ -1,0 +1,6 @@
+-
+  id:     create-a-simple-pdf-document
+  title:  Creating a simple PDF document
+  description: >-
+    Shows how to get started with the PDF-builder, and create a simple PDF
+    document with interpolated text content.
