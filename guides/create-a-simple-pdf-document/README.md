@@ -2,34 +2,37 @@ Creating a simple PDF document
 ==============================
 
 In this guide we will show you, step-by-step, how to create a PDF-document,
-using the PDF-Builder, from a document-template, with some text-fields that are
-replaced with information from the application.
+using the PDF-Builder, from a document-template, with a text placeholder that
+is replaced by the application.
 
 ## What you'll build
 
-The project output is a beautiful PDF-document.
+A very simple simple Java application that generates a beautiful PDF-document
+from the command-line.
 
 ## What you'll need
 
-* Adobe Illustrator (!)
 * JDK 8 or later
 * Maven 3
+* Adobe Illustrator (see below)
 
-> NOTE: At the moment of writing, the author knows of no other application that
-        provides the level of control for template authoring. More on this
-        later.
+> NOTE: At the time of writing, the author knows of no other application that
+        provides the level of control for template authoring that is required.
+        More on this later.
 
 ## Create a Maven project
 
-Start by creating a new Maven project by creating a `pom.xml` file with the
-PDF-Builder dependency:
+Start by creating a new Maven project by creating the following basic `pom.xml`
+file, with the PDF-Builder dependency included.
 
     <?xml version="1.0" encoding="UTF-8"?>
     <project>
         <modelVersion>4.0.0</modelVersion>
+
         <groupId>net.contargo.pdf</groupId>
         <artifactId>simple</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+
         <dependencies>
             <dependency>
                 <groupId>net.contargo.print</groupId>
@@ -44,8 +47,8 @@ PDF-Builder dependency:
 
 ## Add a main-class
 
-Create and add a Java-class to the `src/main/java/Simple.java` folder,
-with a small `main`-method.
+Create the following Java-class as `src/main/java/Simple.java`, with a small
+`main`-method.
 
     import net.contargo.print.pdf.PDFBuilder;
 
@@ -60,29 +63,34 @@ with a small `main`-method.
       }
     }
 
-In this example we've created a command-line tool, that will read a template
-from `STDIN` and send the rendered results back out to `STDOUT`.
+In this example we've created a command-line tool, that will read a PDF-template
+from `STDIN` and save the rendered PDF document results back out to `STDOUT`.
 
-Our builder will search and replace any occurrence of `@name@` in the template,
-and replace it with the word `Hello`.
+The call to `.withReplacement("@name@", "World")` tells the PDF-Builder to
+search for any occurrence of the string `@name@` and replace it with the text
+`World`.
 
 ## Create the PDF template
 
-We now need to create a template PDF-file, so we open Adobe Illustrator and
-create a small A4 letter, branded with the corporate logo.
+We now need to create a PDF-template file, so we open Adobe Illustrator and
+create a pretty A4 letter, branded with the corporate logo, adding the text and
+placeholder `Hello @name@!`.
 
 <img src="img/template.png" />
 
-** NOTE: The PDF templates requires a fully embedded set of font glyphs. To do
-         this choose `Save as` in Adobe Illustrator and `Adobe PDF (pdf)`. Then
-         make sure to set the `Advanced -> Fonts` setting as shown below: **
+Save the template file as `template.pdf` in the project root directory.
+
+> ** All PDF templates requires a fully embedded set of font glyphs. To ensure
+     this choose `Save as` in Adobe Illustrator and `Adobe PDF (pdf)` as file
+     type. Then make sure to set the `Advanced -> Fonts` setting as shown
+     below: **
 
 <img src="img/authoring.png" />
 
 ## Building an executable JAR
 
-Now we must add a `maven-assembly-plugin` configuration in order to build and
-package an executable JAR-file.
+Now add the following `maven-assembly-plugin` configuration to the `pom.xml`
+file, in order to build and package the project as an executable JAR-file.
 
       ...
       </dependencies>
@@ -93,7 +101,7 @@ package an executable JAR-file.
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-assembly-plugin</artifactId>
                   <configuration>
-                      <finalName>simple</finalName>
+                      <finalName>${project.artifactId}</finalName>
                       <appendAssemblyId>false</appendAssemblyId>
                       <descriptorRefs>
                           <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -109,17 +117,17 @@ package an executable JAR-file.
       </build>
     </project>
 
-We can now build the `target/simple.jar` JAR-file with the bundled dependencies
-by running:
+You can now build the `target/simple.jar` JAR-file with the bundled
+dependencies by running:
 
-    > mvn clean compile assembly:single
+    $ mvn compile assembly:single
 
 ## Generate the PDF
 
-Now we can execute our simple example passing the `template.pdf` as input and
-saving the output into a new PDF-file called `result.pdf`.
+Now we can execute our simple example, passing the `template.pdf` as input, and
+save the output into a new PDF-file called `result.pdf`.
 
-    > java -jar target/simple.jar < template.pdf > result.pdf
+    $ java -jar target/simple.jar < template.pdf > result.pdf
 
 And the result is our template with the placeholder `@name@` replaced.
 
