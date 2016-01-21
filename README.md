@@ -28,10 +28,26 @@ Well good for you, that's just what this library does.
 
 ## Known Issues
 
+### Not compatible with True Type Fonts (TTF)
+
 ** Currently, the PDF renderer implementation is using a library
    that does not handle True Type Fonts (TTF) very well, or at
    all. Therefore, please make sure to QA check your template
    and generated PDF documents. **
+
+### Fonts must be fully embedded and not sub-setted
+
+Font embedding and font sub-setting, are critical to the success of
+templates for interpolation and rendering. At the current time, only
+Adobe Illustrator successfully produces a non-subsetted and embedded
+PDF.
+
+### Characters "fi" are encoded to "~"
+
+With the complexity of the PDF format and standard, comes the bagage
+of subtle bugs and problems. It has been shown that some placeholders
+words that use the letters "fi" are escaped in the PDF (Tj operand)
+as a "~" (tidle), rendering the placeholder useless. Beware!
 
 ## Development
 
