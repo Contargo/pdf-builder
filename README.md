@@ -18,8 +18,8 @@ Well good for you, that's just what this library does.
 
 ### Current features
 
-* Reading and parsing a file into a PDF byte array. Usefull for
-  streaming or attachement in emails.
+* Reading and parsing a file into a PDF byte array. Useful for
+  streaming or attachment in emails.
 
 * String interpolation of search-replace pairs, or from a string
   map.
@@ -47,7 +47,7 @@ PDF.
 With the complexity of the PDF format and standard, comes the bagage
 of subtle bugs and problems. It has been shown that some placeholders
 words that use the letters "fi" are escaped in the PDF (Tj operand)
-as a "~" (tidle), rendering the placeholder useless. Beware!
+as a "~" (tilde), rendering the placeholder useless. Beware!
 
 ## Development
 
@@ -67,7 +67,7 @@ to push the new documentation to the remote.
 ### Practical Use
 
 In order to help with quality assurance (QA) and template development,
-there's a practial executable  Java tool to be found under
+there's a practical executable  Java tool to be found under
 `src/test/net/contargo/qa/PDFBuilderQA.java`. This will generate some
 PDF documents, that a human can view and evaluate - ensuring that
 everything looks ok.
