@@ -40,7 +40,7 @@ import java.util.function.BiConsumer;
  * @author  Slaven Travar - slaven.travar@pta.de
  * @since  0.1
  */
-public final class PDFBuilder {
+public class PDFBuilder {
 
     private static final BiConsumer<String, Object> ASSERT_NOT_NULL = (String n, Object o) -> {
         if (o == null) {
