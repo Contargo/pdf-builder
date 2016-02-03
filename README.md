@@ -44,7 +44,7 @@ PDF.
 
 ### Characters "fi" are encoded to "~"
 
-With the complexity of the PDF format and standard, comes the bagage
+With the complexity of the PDF format and standard, comes the baggage
 of subtle bugs and problems. It has been shown that some placeholders
 words that use the letters "fi" are escaped in the PDF (Tj operand)
 as a "~" (tilde), rendering the placeholder useless. Beware!

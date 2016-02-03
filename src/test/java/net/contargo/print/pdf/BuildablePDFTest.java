@@ -44,6 +44,36 @@ public class BuildablePDFTest {
     }
 
 
+    // Text replacement ------------------------------------------------------------------------------------------------
+
+    @Test
+    public void ensureThrowsIfReplacementKeyIsNullOrEmpty() {
+
+        assertFailsForReplacementKey(null);
+        assertFailsForReplacementKey("");
+    }
+
+
+    private void assertFailsForReplacementKey(String key) {
+
+        try {
+            new BuildablePDF(mockedPath, mockedPDFBuilder).withReplacement(key, "foo");
+            Assert.fail(String.format("Should fail for search value `%s`", key));
+        } catch (IllegalArgumentException ex) {
+            // Expected
+        }
+    }
+
+
+    @Test
+    public void ensureThrowsIfReplacementKeyContainsLigature() {
+
+        assertFailsForReplacementKey("fi");
+        assertFailsForReplacementKey("truckIdentifier");
+        // TODO: add more ligatures here!
+    }
+
+
     @Test
     public void ensurePDFIsBuiltWithCorrectReplacement() throws RenderException {
 
@@ -92,4 +122,38 @@ public class BuildablePDFTest {
         Assert.assertEquals("Wrong replacement", "bar", replacements.get("foo"));
         Assert.assertEquals("Wrong replacement", "replace", replacements.get("search"));
     }
+
+
+    @Test
+    public void ensureThrowsIfReplacementMapContainsKeyThatIsNullOrEmpty() {
+
+        assertFailsForMapWithReplacementKey(null);
+        assertFailsForMapWithReplacementKey("");
+    }
+
+
+    private void assertFailsForMapWithReplacementKey(String key) {
+
+        Map<String, String> replacementMap = new HashMap<>();
+        replacementMap.put(key, "foo");
+
+        try {
+            new BuildablePDF(mockedPath, mockedPDFBuilder).withReplacements(replacementMap);
+
+            Assert.fail(String.format("Should fail for map containing search value `%s`", key));
+        } catch (IllegalArgumentException ex) {
+            // Expected
+        }
+    }
+
+
+    @Test
+    public void ensureThrowsIfReplacementMapContainsKeyWithLigature() {
+
+        assertFailsForMapWithReplacementKey("fi");
+        assertFailsForMapWithReplacementKey("truckIdentifier");
+        // TODO: add more ligatures here!
+    }
+
+
 }

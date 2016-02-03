@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 
 /**
@@ -18,6 +19,25 @@ import java.util.Map;
  * @since  0.1
  */
 public final class BuildablePDF {
+
+    /**
+     * A ligature is a combination of two or more letters into a single symbol thus this combination of letters should
+     * be never used within a placeholder. TODO: Add further ligatures!
+     */
+    private static final String[] LIGATURES = { "fi" };
+
+    private static final Consumer<String> ASSERT_VALID_SEARCH_VALUE = (String value) -> {
+        if (value == null || value.isEmpty()) {
+            throw new IllegalArgumentException("The search value must not be empty");
+        }
+
+        for (String ligature : LIGATURES) {
+            if (value.contains(ligature)) {
+                throw new IllegalArgumentException(String.format("The search value must not contain the ligature `%s`",
+                        ligature));
+            }
+        }
+    };
 
     private final PDFBuilder builder;
     private Path templateAsPath;
@@ -73,6 +93,8 @@ public final class BuildablePDF {
      */
     public BuildablePDF withReplacement(String search, String replace) {
 
+        ASSERT_VALID_SEARCH_VALUE.accept(search);
+
         this.replacements.put(search, replace);
 
         return this;
@@ -87,6 +109,10 @@ public final class BuildablePDF {
      * @return  this builder for chaining
      */
     public BuildablePDF withReplacements(Map<String, String> replacements) {
+
+        for (String key : replacements.keySet()) {
+            ASSERT_VALID_SEARCH_VALUE.accept(key);
+        }
 
         this.replacements.putAll(replacements);
 
