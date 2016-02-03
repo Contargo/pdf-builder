@@ -176,7 +176,7 @@ public class PDFBuilderIT {
         try(PDDocument targetPdDocument = PDDocument.load(in)) {
             String textOnlyAfter = textStripper.getText(targetPdDocument);
 
-            Assert.assertTrue("Replaced text is missing", textOnlyAfter.contains(text));
+            Assert.assertTrue("Replace value is missing", textOnlyAfter.contains(text));
 
             for (String searchValue : searchValues) {
                 Assert.assertFalse(String.format("Search value `%s` exists after", searchValue),
