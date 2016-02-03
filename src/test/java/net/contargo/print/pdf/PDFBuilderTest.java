@@ -31,15 +31,15 @@ import java.util.Map;
 public class PDFBuilderTest {
 
     @Mock
-    PDFRenderer mockedPDFRenderer;
+    private PDFRenderer mockedPDFRenderer;
     @Mock
-    QRCodeRenderer mockedQRCodeRenderer;
+    private QRCodeRenderer mockedQRCodeRenderer;
     @Mock
-    Path mockedPathTemplate;
+    private Path mockedPathTemplate;
     @Mock
-    Path mockedInputStreamTemplate;
+    private Path mockedInputStreamTemplate;
     @Captor
-    ArgumentCaptor<List<QRCode>> qrCodesCaptor;
+    private ArgumentCaptor<List<QRCode>> qrCodesCaptor;
 
     @Test(expected = IllegalArgumentException.class)
     public void ensureThrowsOnNullPathTemplateArgument() {
