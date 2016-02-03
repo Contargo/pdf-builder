@@ -149,17 +149,13 @@ public class PDFBuilderQA {
     private void performGenerateWithMultiLineReplacements() throws IOException, RenderException {
 
         Function<String, String> placeholder = (s) -> String.format("\\$\\{%s\\}", s);
-        String[] escapedSearchValues = new String[4];
-
-        for (int i = 0; i < 4; i++) {
-            escapedSearchValues[i] = placeholder.apply("FOOTER" + i);
-        }
 
         Path source = RESOURCES.resolve(FOOTER_PDF);
         Path target = RESOURCES.resolve(MULTI_LINE_REPLACE_CHECK);
 
         PDFBuilder.fromTemplate(source)
-            .withMultiLineReplacement(veryLongText(), 200, escapedSearchValues)
+            .withMultiLineReplacement(veryLongText(), 200, placeholder.apply("FOOTER3"), placeholder.apply("FOOTER2"),
+                placeholder.apply("FOOTER1"), placeholder.apply("FOOTER0"))
             .build()
             .save(target);
         targets.add(target);
@@ -169,14 +165,7 @@ public class PDFBuilderQA {
     private String veryLongText() {
 
         return
-            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore"
-            + " et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea "
-            + "rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum "
-            + "dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore"
-            + " magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet "
-            + "clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit "
-            + "amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna"
-            + " aliquyam erat";
+            "Contargo GmbH & Co.KG. · Sitz: Duisburg · AG Duisburg HRA 7682 · PhG: Contargo Verwaltungs GmbH, Duisburg · AG Duisburg HRB 11844 · Geschäftsführung: Heinrich Kerstgens, Thomas Löffler, Thomas Maaßen, Dr. Martin Neese · Es findet deutsches Recht Anwendung · Erfüllungs- und Gerichtsstand ist Duisburg · Ust-IdNr. DE 813870828 · St-Nr. 134/5844/0430 · Bankverbindung: Dresdner Bank, BLZ 480 800 00, Kto 100 255 700";
     }
 
 

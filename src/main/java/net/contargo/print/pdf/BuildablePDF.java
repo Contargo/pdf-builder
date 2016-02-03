@@ -20,6 +20,8 @@ import java.util.function.Consumer;
  */
 public final class BuildablePDF {
 
+    private static final String WHITESPACE = " ";
+
     /**
      * A ligature is a combination of two or more letters into a single symbol thus this combination of letters should
      * be never used within a placeholder. TODO: Add further ligatures!
@@ -148,8 +150,66 @@ public final class BuildablePDF {
      */
     public BuildablePDF withMultiLineReplacement(String text, int maxCharactersPerLine, String... placeholders) {
 
-        for (String search : placeholders) {
-            this.replacements.put(search, text);
+        int numberOfPlaceholders = placeholders.length;
+        int numberOfCharacters = text.length();
+
+        if (numberOfPlaceholders * maxCharactersPerLine < numberOfCharacters) {
+            throw new IllegalArgumentException(String.format(
+                    "The given text contains %d characters, but there are only %d lines with maximum %d characters each",
+                    numberOfCharacters, numberOfPlaceholders, maxCharactersPerLine));
+        }
+
+        // TODO: Refactor the shit out of it!
+
+        // Initialize replace values
+        String[] replace = new String[placeholders.length];
+
+        for (int i = 0; i < placeholders.length; i++) {
+            replace[i] = "";
+        }
+
+        // Split text to words
+        String[] words = text.split(WHITESPACE);
+        System.out.println("Number of words: " + words.length);
+
+        int wordCounter = 0;
+
+        for (int i = 0; i < replace.length; i++) {
+            System.out.println("Replace placeholder " + i);
+
+            while (replace[i].length() + words[wordCounter].length() <= maxCharactersPerLine) {
+                System.out.println("Append word: `" + words[wordCounter] + "`");
+
+                replace[i] = replace[i].concat(words[wordCounter]);
+                replace[i] = replace[i].concat(WHITESPACE);
+
+                System.out.println("New value: `" + replace[i] + "`");
+
+                if (replace[i].contains("100 255 700")) {
+                    System.out.println("joooohoo");
+                }
+
+                if (wordCounter == words.length - 1) {
+                    break;
+                }
+
+                wordCounter += 1;
+            }
+
+            if (replace[i].endsWith(WHITESPACE)) {
+                replace[i] = replace[i].substring(0, replace[i].length() - 1);
+            }
+
+            System.out.println("Final normalization results in: `" + replace[i] + "`");
+
+            System.out.println("");
+        }
+
+        // Fill replacements map
+        for (int i = 0; i < placeholders.length; i++) {
+            System.out.println(placeholders[i] + "=`" + replace[i] + "`");
+
+            this.replacements.put(placeholders[i], replace[i]);
         }
 
         return this;

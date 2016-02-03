@@ -156,4 +156,56 @@ public class BuildablePDFTest {
     }
 
 
+    // Multi-line text replacement -------------------------------------------------------------------------------------
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureMultiLineReplacementThrowsIfTextIsTooLong() throws RenderException {
+
+        // 60 characters
+        String text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed";
+
+        // but only 2 lines à 20 characters
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1")
+            .build();
+    }
+
+
+    @Test
+    public void ensurePDFIsBuiltWithCorrectMultiLineReplacementFittingText() throws RenderException {
+
+        // 28 characters
+        String text = "Lucy in the sky with diamonds";
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1")
+            .build();
+
+        Mockito.verify(mockedPDFBuilder)
+            .renderSearchAndReplaceText(Matchers.any(byte[].class), replacementsCaptor.capture());
+
+        Map<String, String> replacements = replacementsCaptor.getValue();
+        Assert.assertEquals("Wrong amount of replacements", 2, replacements.size());
+
+        Assert.assertEquals("Wrong replacement for first line", "Lucy in the sky with", replacements.get("replace0"));
+        Assert.assertEquals("Wrong replacement for second line", "diamonds", replacements.get("replace1"));
+    }
+
+
+    @Test
+    public void ensurePDFIsBuiltWithCorrectMultiLineReplacementWhenTextContainsNumbers() throws RenderException {
+
+        // 36 characters
+        String text = "Kto 100 255 700 700, BLZ 480 800 00";
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1")
+            .build();
+
+        Mockito.verify(mockedPDFBuilder)
+            .renderSearchAndReplaceText(Matchers.any(byte[].class), replacementsCaptor.capture());
+
+        Map<String, String> replacements = replacementsCaptor.getValue();
+        Assert.assertEquals("Wrong amount of replacements", 2, replacements.size());
+
+        Assert.assertEquals("Wrong replacement for first line", "Kto 100 255 700 700,", replacements.get("replace0"));
+        Assert.assertEquals("Wrong replacement for second line", "BLZ 480 800 00", replacements.get("replace1"));
+    }
 }
