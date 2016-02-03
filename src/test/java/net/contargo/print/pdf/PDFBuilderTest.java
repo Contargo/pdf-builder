@@ -126,7 +126,7 @@ public class PDFBuilderTest {
     public void ensureRenderQRCodesDelegatesToBothRenderers() throws Exception {
 
         byte[] bytes = new byte[0];
-        List<QRSpec> specs = new ArrayList<>(Arrays.asList(QRSpec.fromCode("foobar")));
+        List<QRSpec> specs = new ArrayList<>(Collections.singletonList(QRSpec.fromCode("foobar")));
 
         Mockito.when(mockedQRCodeRenderer.render(Matchers.anyString(), Matchers.anyInt())).thenReturn(bytes);
 

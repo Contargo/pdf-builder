@@ -16,9 +16,6 @@ import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
-import java.util.HashMap;
-import java.util.Map;
-
 
 /**
  * @author  Olle Törnström - toernstroem@synyx.de
@@ -38,14 +35,9 @@ public class PDFBuilderIT {
 
         try(PDDocument sourcePdDocument = PDDocument.load(source.toFile())) {
             String textOnlyBefore = textStripper.getText(sourcePdDocument);
-            Assert.assertTrue("Search value `foo` exists before", textOnlyBefore.contains("foo"));
+            Assert.assertTrue("Search value `foo` is missing", textOnlyBefore.contains("foo"));
             Assert.assertFalse("Replace value `bar` present before", textOnlyBefore.contains("bar"));
         }
-
-        Map<String, String> texts = new HashMap<>();
-        texts.put("foo", "bar");
-
-        RESOURCES.resolve("foo-replaced.pdf");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -73,14 +65,9 @@ public class PDFBuilderIT {
 
             try(PDDocument sourcePdDocument = PDDocument.load(source)) {
                 String textOnlyBefore = textStripper.getText(sourcePdDocument);
-                Assert.assertTrue("Search value `foo` exists before", textOnlyBefore.contains("foo"));
+                Assert.assertTrue("Search value `foo` is missing", textOnlyBefore.contains("foo"));
                 Assert.assertFalse("Replace value `bar` present before", textOnlyBefore.contains("bar"));
             }
-
-            Map<String, String> texts = new HashMap<>();
-            texts.put("foo", "bar");
-
-            RESOURCES.resolve("foo-replaced.pdf");
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -116,11 +103,9 @@ public class PDFBuilderIT {
 
         try(PDDocument sourcePdDocument = PDDocument.load(source.toFile())) {
             String textOnlyBefore = textStripper.getText(sourcePdDocument);
-            Assert.assertTrue("Search value `foo` exists before", textOnlyBefore.contains("foo"));
+            Assert.assertTrue("Search value `foo` is missing", textOnlyBefore.contains("foo"));
             Assert.assertFalse("Replace value `bar\\` present before", textOnlyBefore.contains("bar" + backslash));
         }
-
-        RESOURCES.resolve("foo-replaced.pdf");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
