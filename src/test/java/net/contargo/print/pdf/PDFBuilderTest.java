@@ -1,8 +1,5 @@
 package net.contargo.print.pdf;
 
-import net.contargo.print.pdf.PDFBuilder.QRCode;
-import net.contargo.print.pdf.PDFBuilder.QRSpec;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,7 +18,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

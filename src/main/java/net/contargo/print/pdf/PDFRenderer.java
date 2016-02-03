@@ -1,7 +1,5 @@
 package net.contargo.print.pdf;
 
-import net.contargo.print.pdf.PDFBuilder.QRCode;
-
 import java.io.InputStream;
 
 import java.nio.file.Path;

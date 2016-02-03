@@ -1,7 +1,5 @@
 package net.contargo.print.pdf;
 
-import net.contargo.print.pdf.PDFBuilder.QRCode;
-
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSString;
 import org.apache.pdfbox.exceptions.COSVisitorException;

@@ -1,7 +1,7 @@
 package net.contargo.example;
 
 import net.contargo.print.pdf.PDFBuilder;
-import net.contargo.print.pdf.PDFBuilder.QRSpec;
+import net.contargo.print.pdf.QRSpec;
 import net.contargo.print.pdf.RenderException;
 
 import java.io.ByteArrayOutputStream;
