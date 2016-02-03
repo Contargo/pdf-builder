@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 
 /**
@@ -26,11 +27,15 @@ public class PDFBuilderQA {
 
     private static final String FOO_PDF = "foo.pdf";
     private static final String LETTER_PDF = "letter.pdf";
+    private static final String FOOTER_PDF = "footer.pdf";
 
-    private static final String WITH_QR_CODE_CHECK = "check-with-qr-code.pdf";
+    private static final String NO_CHANGE_CHECK = "check-no-change-still-foo.pdf";
     private static final String TITLE_REPLACED_CHECK = "check-letter-title-replaced.pdf";
     private static final String ONLY_BAR_CHECK = "check-no-foo-only-bar.pdf";
-    private static final String NO_CHANGE_CHECK = "check-no-change-still-foo.pdf";
+    private static final String QR_CODE_CHECK = "check-with-qr-code.pdf";
+    private static final String MORE_QR_CODES_CHECK = "check-with-more-qr-codes.pdf";
+    private static final String TITLES_REPLACED_AND_QR_CODES_CHECK = "check-with-replaced-titles-and-qr-codes.pdf";
+    private static final String MULTI_LINE_REPLACE_CHECK = "check-multi-line-footer.pdf";
 
     private static final Path RESOURCES = FileSystems.getDefault().getPath("src/test/resources");
 
@@ -53,6 +58,7 @@ public class PDFBuilderQA {
         performGenerateOneQRCode();
         performGenerateMoreQRCodes();
         performReplaceAndQRCodesGeneration();
+        performGenerateWithMultiLineReplacements();
 
         alertUserAndWaitForEnter();
 
@@ -97,7 +103,7 @@ public class PDFBuilderQA {
     private void performGenerateOneQRCode() throws IOException, RenderException {
 
         Path source = RESOURCES.resolve(FOO_PDF);
-        Path target = RESOURCES.resolve(WITH_QR_CODE_CHECK);
+        Path target = RESOURCES.resolve(QR_CODE_CHECK);
 
         PDFBuilder.fromTemplate(source)
             .withQRCode(QRSpec.fromCode("code").withPositionY(-24).withPositionX(20).withSize(140))
@@ -110,7 +116,7 @@ public class PDFBuilderQA {
     private void performGenerateMoreQRCodes() throws IOException, RenderException {
 
         Path source = RESOURCES.resolve(FOO_PDF);
-        Path target = RESOURCES.resolve("check-with-more-qr-codes.pdf");
+        Path target = RESOURCES.resolve(MORE_QR_CODES_CHECK);
 
         PDFBuilder.fromTemplate(source)
             .withQRCode(QRSpec.fromCode("one").withPosition(20, -20))
@@ -124,7 +130,7 @@ public class PDFBuilderQA {
     private void performReplaceAndQRCodesGeneration() throws IOException, RenderException {
 
         Path source = RESOURCES.resolve(LETTER_PDF);
-        Path target = RESOURCES.resolve("check-with-replaced-titles-and-qr-codes.pdf");
+        Path target = RESOURCES.resolve(TITLES_REPLACED_AND_QR_CODES_CHECK);
 
         Map<String, String> replacements = new HashMap<>();
         replacements.put("TESTBRIEF", "REPLACED AGAIN!");
@@ -137,6 +143,40 @@ public class PDFBuilderQA {
             .build()
             .save(target);
         targets.add(target);
+    }
+
+
+    private void performGenerateWithMultiLineReplacements() throws IOException, RenderException {
+
+        Function<String, String> placeholder = (s) -> String.format("\\$\\{%s\\}", s);
+        String[] escapedSearchValues = new String[4];
+
+        for (int i = 0; i < 4; i++) {
+            escapedSearchValues[i] = placeholder.apply("FOOTER" + i);
+        }
+
+        Path source = RESOURCES.resolve(FOOTER_PDF);
+        Path target = RESOURCES.resolve(MULTI_LINE_REPLACE_CHECK);
+
+        PDFBuilder.fromTemplate(source)
+            .withMultiLineReplacement(veryLongText(), 200, escapedSearchValues)
+            .build()
+            .save(target);
+        targets.add(target);
+    }
+
+
+    private String veryLongText() {
+
+        return
+            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore"
+            + " et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea "
+            + "rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum "
+            + "dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore"
+            + " magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet "
+            + "clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit "
+            + "amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna"
+            + " aliquyam erat";
     }
 
 

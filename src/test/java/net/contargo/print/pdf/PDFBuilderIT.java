@@ -16,6 +16,11 @@ import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+
 
 /**
  * @author  Olle Törnström - toernstroem@synyx.de
@@ -118,6 +123,68 @@ public class PDFBuilderIT {
 
             Assert.assertFalse("Search value `foo` exists after", textOnlyAfter.contains("foo"));
             Assert.assertTrue("Replace value `bar` is missing", textOnlyAfter.contains("bar" + backslash));
+        }
+    }
+
+
+    /**
+     * Allow multi-line replacing, see #14181.
+     */
+    @Test
+    public void ensureMultiLineReplacementWithVeryLongTextReplacesAllThePlaceholders() throws IOException,
+        RenderException {
+
+        // Ensure the PDF to execute test with exists
+        Path source = RESOURCES.resolve("footer.pdf");
+        Assert.assertTrue("Missing " + source, source.toFile().exists());
+
+        // Create the placeholders for the four footer lines
+        String[] searchValues = new String[4];
+
+        for (int i = 0; i < 4; i++) {
+            searchValues[i] = "FOOTER" + i;
+        }
+
+        // Ensure all of the placeholders exist in the PDF
+        PDFTextStripper textStripper = new PDFTextStripper();
+
+        try(PDDocument sourcePdDocument = PDDocument.load(source.toFile())) {
+            String textOnlyBefore = textStripper.getText(sourcePdDocument);
+
+            for (String searchValue : searchValues) {
+                Assert.assertTrue(String.format("Search value `%s` is missing", searchValue),
+                    textOnlyBefore.contains(searchValue));
+            }
+        }
+
+        // Escape the special characters of the placeholders
+        Function<String, String> placeholder = (s) -> String.format("\\$\\{%s\\}", s);
+        String[] escapedSearchValues = new String[4];
+
+        for (int i = 0; i < 4; i++) {
+            escapedSearchValues[i] = placeholder.apply(searchValues[i]);
+        }
+
+        // Build a PDF with replaced placeholders
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        String text =
+            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut";
+
+        PDFBuilder.fromTemplate(source).withMultiLineReplacement(text, 20, escapedSearchValues).build().save(out);
+
+        // Ensure the placeholders have been replaced successfully
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+
+        try(PDDocument targetPdDocument = PDDocument.load(in)) {
+            String textOnlyAfter = textStripper.getText(targetPdDocument);
+
+            Assert.assertTrue("Replaced text is missing", textOnlyAfter.contains(text));
+
+            for (String searchValue : searchValues) {
+                Assert.assertFalse(String.format("Search value `%s` exists after", searchValue),
+                    textOnlyAfter.contains(searchValue));
+            }
         }
     }
 }

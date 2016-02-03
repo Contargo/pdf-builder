@@ -277,7 +277,7 @@ public final class PDFBuilder {
          */
         public BuildablePDF withReplacement(String search, String replace) {
 
-            replacements.put(search, replace);
+            this.replacements.put(search, replace);
 
             return this;
         }
@@ -308,6 +308,16 @@ public final class PDFBuilder {
         public BuildablePDF withQRCode(QRSpec qrSpec) {
 
             this.qrCodes.add(qrSpec);
+
+            return this;
+        }
+
+
+        public BuildablePDF withMultiLineReplacement(String text, int maxCharactersPerLine, String... replace) {
+
+            for (String replaceValue : replace) {
+                this.replacements.put(replaceValue, text);
+            }
 
             return this;
         }
