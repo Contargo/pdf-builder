@@ -177,14 +177,28 @@ public class BuildablePDFTest {
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void ensureMultiLineReplacementThrowsIfTextIsTooLong() {
 
-        // 60 characters
-        String text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed";
+        Consumer<String> assertFailsForTooLongText = (text) -> {
+            try {
+                int maxCharsPerLine = 20;
 
-        // but only 2 lines à 20 characters
-        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1");
+                new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, maxCharsPerLine,
+                    "replace0", "replace1");
+                Assert.fail(String.format(
+                        "Should fail for text with %d characters, but only %d lines with maximum %d characters each",
+                        text.length(), maxCharsPerLine, 2));
+            } catch (IllegalArgumentException ex) {
+                // Expected
+            }
+        };
+
+        // 60 characters
+        assertFailsForTooLongText.accept("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed");
+
+        // 51 characters
+        assertFailsForTooLongText.accept("Loremipsumdolorsitametconsetetursadipscingelitrsed");
     }
 
 
@@ -202,19 +216,22 @@ public class BuildablePDFTest {
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void ensureMultiLineReplacementThrowsIfMaximumCharactersNumberIsNegative() {
+    @Test
+    public void ensureMultiLineReplacementThrowsForNotPositiveMaximumCharactersNumber() {
 
-        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement("Lorem ipsum", -1, "replace0",
-            "replace1");
-    }
+        Consumer<Integer> assertFailsForInvalidMaximumCharacters = (max) -> {
+            try {
+                new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement("Lorem ipsum", max, "replace0",
+                    "replace1");
 
+                Assert.fail("Should fail for maximum characters per line: " + max);
+            } catch (IllegalArgumentException ex) {
+                // Expected
+            }
+        };
 
-    @Test(expected = IllegalArgumentException.class)
-    public void ensureMultiLineReplacementThrowsIfMaximumCharactersNumberIsZero() {
-
-        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement("Lorem ipsum", 0, "replace0",
-            "replace1");
+        assertFailsForInvalidMaximumCharacters.accept(-1);
+        assertFailsForInvalidMaximumCharacters.accept(0);
     }
 
 
