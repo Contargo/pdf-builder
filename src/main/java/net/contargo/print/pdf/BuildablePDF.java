@@ -1,5 +1,8 @@
 package net.contargo.print.pdf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 
 import java.nio.file.Path;
@@ -19,6 +22,8 @@ import java.util.function.Consumer;
  * @since  0.1
  */
 public final class BuildablePDF {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BuildablePDF.class);
 
     private static final String WHITESPACE = " ";
 
@@ -112,9 +117,7 @@ public final class BuildablePDF {
      */
     public BuildablePDF withReplacements(Map<String, String> replacements) {
 
-        for (String key : replacements.keySet()) {
-            ASSERT_VALID_SEARCH_VALUE.accept(key);
-        }
+        replacements.keySet().forEach(ASSERT_VALID_SEARCH_VALUE::accept);
 
         this.replacements.putAll(replacements);
 
@@ -161,6 +164,8 @@ public final class BuildablePDF {
 
         // TODO: Refactor the shit out of it!
 
+        LOG.debug("Execute multi line replacement --------------------");
+
         // Initialize replace values
         String[] replace = new String[placeholders.length];
 
@@ -170,7 +175,7 @@ public final class BuildablePDF {
 
         // Split text to words
         String[] words = text.split(WHITESPACE, Integer.MAX_VALUE);
-        System.out.println("Number of words: " + words.length);
+        LOG.debug("Number of words: " + words.length);
 
         int wordCounter = 0;
 
@@ -197,16 +202,16 @@ public final class BuildablePDF {
             if (replace[i].endsWith(WHITESPACE)) {
                 replace[i] = replace[i].substring(0, replace[i].length() - 1);
             }
-
-            System.out.println("");
         }
 
         // Fill replacements map
         for (int i = 0; i < placeholders.length; i++) {
-            System.out.println(placeholders[i] + "=`" + replace[i] + "`");
+            LOG.debug("Replacement " + i + ": " + placeholders[i] + "=`" + replace[i] + "`");
 
             this.replacements.put(placeholders[i], replace[i]);
         }
+
+        LOG.debug("Done multi line replacement -----------------------");
 
         return this;
     }
