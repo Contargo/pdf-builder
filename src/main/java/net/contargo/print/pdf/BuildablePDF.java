@@ -165,7 +165,11 @@ public final class BuildablePDF {
 
         ASSERT_NOT_EMPTY.accept("text", text);
         ASSERT_NOT_NULL.accept("placeholders", placeholders);
-        assertCorrectMultiLineReplacementParameters(text, maxCharactersPerLine, placeholders);
+
+        int numberOfPlaceholders = placeholders.length;
+        int numberOfCharacters = text.length();
+
+        assertCorrectMultiLineReplacementParameters(numberOfCharacters, maxCharactersPerLine, numberOfPlaceholders);
 
         LOG.debug("Execute multi line replacement --------------------");
 
@@ -210,6 +214,12 @@ public final class BuildablePDF {
             }
         }
 
+        if (!allWordsCompleted) {
+            throw new IllegalArgumentException(String.format(
+                    "The given text does not fit in %d lines with maximum %d characters because of length of words",
+                    numberOfPlaceholders, maxCharactersPerLine));
+        }
+
         // Fill replacements map
         for (int i = 0; i < placeholders.length; i++) {
             LOG.debug("Replacement " + i + ": " + placeholders[i] + "=`" + replace[i] + "`");
@@ -223,16 +233,13 @@ public final class BuildablePDF {
     }
 
 
-    private void assertCorrectMultiLineReplacementParameters(String text, int maxCharactersPerLine,
-        String... placeholders) {
+    private void assertCorrectMultiLineReplacementParameters(int numberOfCharacters, int maxCharactersPerLine,
+        int numberOfPlaceholders) {
 
         if (maxCharactersPerLine < 1) {
             throw new IllegalArgumentException("Invalid number of maximum characters per line: "
                 + maxCharactersPerLine);
         }
-
-        int numberOfPlaceholders = placeholders.length;
-        int numberOfCharacters = text.length();
 
         if (numberOfPlaceholders < 2) {
             throw new IllegalArgumentException("At least two placeholders must be provided, but was: "

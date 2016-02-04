@@ -157,7 +157,7 @@ public class BuildablePDFTest {
     }
 
 
-    // Multi-line text replacement -------------------------------------------------------------------------------------
+    // Multi-line text replacement, see #14181 -------------------------------------------------------------------------
 
     @Test
     public void ensureMultiLineReplacementThrowsIfTextIsEmpty() {
@@ -257,5 +257,21 @@ public class BuildablePDFTest {
         Assert.assertEquals("Wrong replacement for first line", "Lucy in the sky with", replacements.get("replace0"));
         Assert.assertEquals("Wrong replacement for second line", "diamonds", replacements.get("replace1"));
         Assert.assertEquals("Wrong replacement for third line", "", replacements.get("replace2"));
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureThrowsIfNumberOfCharactersIsOkayButLineBreakResultsInNonFittingText() {
+
+        // 60 characters - is fitting in theory to 3 placeholder à max. 20 characters
+        String text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed";
+        // Would be result in following:
+        // 1st line: `Lorem ipsum dolor`
+        // 2nd line: `sit amet, consetetur`
+        // 3rd line: `sadipscing elitr,`
+        // --> last word `sed` would be missing, so ensure that exception is thrown
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1",
+            "replace2");
     }
 }
