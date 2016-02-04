@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 
 /**
@@ -55,6 +56,16 @@ public final class BuildablePDF {
             }
         }
     };
+
+    /**
+     * Describes text filling behaviour of multi line replacement: fill text from top to bottom
+     * {@link MultiLineTextFillMode#TOP} or from bottom to top {@link MultiLineTextFillMode#BOTTOM}.
+     */
+    public enum MultiLineTextFillMode {
+
+        TOP,
+        BOTTOM
+    }
 
     private final PDFBuilder builder;
     private Path templateAsPath;
@@ -151,7 +162,8 @@ public final class BuildablePDF {
 
 
     /**
-     * Adds a multi-line text to this builder by replacing the given placeholders with split text.
+     * Adds a multi-line text to this builder by replacing the given placeholders with split text start filling from
+     * top.
      *
      * @param  text  string to replace with
      * @param  maxCharactersPerLine  describes how many characters fit into a line of the multi-line text
@@ -162,6 +174,25 @@ public final class BuildablePDF {
      * @since  0.3
      */
     public BuildablePDF withMultiLineReplacement(String text, int maxCharactersPerLine, String... placeholders) {
+
+        return withMultiLineReplacement(text, maxCharactersPerLine, MultiLineTextFillMode.TOP, placeholders);
+    }
+
+
+    /**
+     * Adds a multi-line text to this builder by replacing the given placeholders with split text.
+     *
+     * @param  text  string to replace with
+     * @param  maxCharactersPerLine  describes how many characters fit into a line of the multi-line text
+     * @param  fillFrom  describes if the placeholders are filled from top to bottom or from bottom to top
+     * @param  placeholders  string(s) to search for
+     *
+     * @return  this builder for chaining
+     *
+     * @since  0.3
+     */
+    public BuildablePDF withMultiLineReplacement(String text, int maxCharactersPerLine, MultiLineTextFillMode fillFrom,
+        String... placeholders) {
 
         ASSERT_NOT_EMPTY.accept("text", text);
         ASSERT_NOT_NULL.accept("placeholders", placeholders);
@@ -177,8 +208,43 @@ public final class BuildablePDF {
         String[] words = text.split(WHITESPACE, Integer.MAX_VALUE);
         LOG.debug("Number of words: " + words.length);
 
+        // Distribute words to fill placeholders
+        String[] replace = distributeWordsToPlaceholders(words, numberOfPlaceholders, maxCharactersPerLine);
+
+        // Fill replacements map
+        fillPlaceholdersWithReplacementValues(fillFrom, placeholders, replace);
+
+        LOG.debug("Done multi line replacement -----------------------");
+
+        return this;
+    }
+
+
+    private void assertCorrectMultiLineReplacementParameters(int numberOfCharacters, int maxCharactersPerLine,
+        int numberOfPlaceholders) {
+
+        if (maxCharactersPerLine < 1) {
+            throw new IllegalArgumentException("Invalid number of maximum characters per line: "
+                + maxCharactersPerLine);
+        }
+
+        if (numberOfPlaceholders < 2) {
+            throw new IllegalArgumentException("At least two placeholders must be provided, but was: "
+                + numberOfPlaceholders);
+        }
+
+        if (numberOfPlaceholders * maxCharactersPerLine < numberOfCharacters) {
+            throw new IllegalArgumentException(String.format(
+                    "The given text contains %d characters, but there are only %d lines with maximum %d characters each",
+                    numberOfCharacters, numberOfPlaceholders, maxCharactersPerLine));
+        }
+    }
+
+
+    private String[] distributeWordsToPlaceholders(String[] words, int numberOfPlaceholders, int maxCharactersPerLine) {
+
         // Initialize replacement values
-        String[] replace = new String[placeholders.length];
+        String[] replace = new String[numberOfPlaceholders];
 
         for (int i = 0; i < replace.length; i++) {
             replace[i] = "";
@@ -220,36 +286,40 @@ public final class BuildablePDF {
                     numberOfPlaceholders, maxCharactersPerLine));
         }
 
-        // Fill replacements map
-        for (int i = 0; i < placeholders.length; i++) {
-            LOG.debug("Replacement " + i + ": " + placeholders[i] + "=`" + replace[i] + "`");
-
-            this.replacements.put(placeholders[i], replace[i]);
-        }
-
-        LOG.debug("Done multi line replacement -----------------------");
-
-        return this;
+        return replace;
     }
 
 
-    private void assertCorrectMultiLineReplacementParameters(int numberOfCharacters, int maxCharactersPerLine,
-        int numberOfPlaceholders) {
+    private void fillPlaceholdersWithReplacementValues(MultiLineTextFillMode fillFrom, String[] placeholders,
+        String[] replace) {
 
-        if (maxCharactersPerLine < 1) {
-            throw new IllegalArgumentException("Invalid number of maximum characters per line: "
-                + maxCharactersPerLine);
-        }
+        if (MultiLineTextFillMode.BOTTOM.equals(fillFrom)) {
+            // Do only use replacement values that have content
+            List<String> replacementValues = Arrays.asList(replace).stream().filter(value ->
+                        value != null && !value.isEmpty()).collect(Collectors.toList());
 
-        if (numberOfPlaceholders < 2) {
-            throw new IllegalArgumentException("At least two placeholders must be provided, but was: "
-                + numberOfPlaceholders);
-        }
+            // Reverse order because filling from bottom to top
+            Collections.reverse(replacementValues);
 
-        if (numberOfPlaceholders * maxCharactersPerLine < numberOfCharacters) {
-            throw new IllegalArgumentException(String.format(
-                    "The given text contains %d characters, but there are only %d lines with maximum %d characters each",
-                    numberOfCharacters, numberOfPlaceholders, maxCharactersPerLine));
+            Iterator<String> iterator = replacementValues.iterator();
+
+            for (int i = placeholders.length - 1; i >= 0; i--) {
+                String replacementValue = "";
+
+                if (iterator.hasNext()) {
+                    replacementValue = iterator.next();
+                }
+
+                LOG.debug("Replacement " + i + ": " + placeholders[i] + "=`" + replacementValue + "`");
+
+                this.replacements.put(placeholders[i], replacementValue);
+            }
+        } else {
+            for (int i = 0; i < placeholders.length; i++) {
+                LOG.debug("Replacement " + i + ": " + placeholders[i] + "=`" + replace[i] + "`");
+
+                this.replacements.put(placeholders[i], replace[i]);
+            }
         }
     }
 }

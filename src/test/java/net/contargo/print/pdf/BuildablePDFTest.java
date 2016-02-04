@@ -236,7 +236,7 @@ public class BuildablePDFTest {
 
 
     @Test
-    public void ensurePDFIsBuiltWithCorrectMultiLineReplacementFittingText() throws RenderException {
+    public void ensureMultiLineReplacementFillsAllPlaceholdersIfTextFitsCompletely() throws RenderException {
 
         // 28 characters
         String text = "Lucy in the sky with diamonds";
@@ -256,29 +256,79 @@ public class BuildablePDFTest {
 
 
     @Test
-    public void ensureMultiLineReplacementResultsInEmptyLineIfMorePlaceholdersThanLines() throws RenderException {
+    public void ensureMultiLineReplacementFillsNotAllPlaceholdersIfTextIsShortEnoughFillingFromTopPerDefault()
+        throws RenderException {
 
         // 28 characters
         String text = "Lucy in the sky with diamonds";
 
         new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1",
-            "replace2")
+            "replace2", "replace3")
             .build();
 
         Mockito.verify(mockedPDFBuilder)
             .renderSearchAndReplaceText(Matchers.any(byte[].class), replacementsCaptor.capture());
 
         Map<String, String> replacements = replacementsCaptor.getValue();
-        Assert.assertEquals("Wrong amount of replacements", 3, replacements.size());
+        Assert.assertEquals("Wrong amount of replacements", 4, replacements.size());
 
         Assert.assertEquals("Wrong replacement for first line", "Lucy in the sky with", replacements.get("replace0"));
         Assert.assertEquals("Wrong replacement for second line", "diamonds", replacements.get("replace1"));
         Assert.assertEquals("Wrong replacement for third line", "", replacements.get("replace2"));
+        Assert.assertEquals("Wrong replacement for fourth line", "", replacements.get("replace3"));
+    }
+
+
+    @Test
+    public void ensureMultiLineReplacementFillsNotAllPlaceholdersIfTextIsShortEnoughFillingFromTop()
+        throws RenderException {
+
+        // 28 characters
+        String text = "Lucy in the sky with diamonds";
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20,
+            BuildablePDF.MultiLineTextFillMode.TOP, "replace0", "replace1", "replace2", "replace3")
+            .build();
+
+        Mockito.verify(mockedPDFBuilder)
+            .renderSearchAndReplaceText(Matchers.any(byte[].class), replacementsCaptor.capture());
+
+        Map<String, String> replacements = replacementsCaptor.getValue();
+        Assert.assertEquals("Wrong amount of replacements", 4, replacements.size());
+
+        Assert.assertEquals("Wrong replacement for first line", "Lucy in the sky with", replacements.get("replace0"));
+        Assert.assertEquals("Wrong replacement for second line", "diamonds", replacements.get("replace1"));
+        Assert.assertEquals("Wrong replacement for third line", "", replacements.get("replace2"));
+        Assert.assertEquals("Wrong replacement for fourth line", "", replacements.get("replace3"));
+    }
+
+
+    @Test
+    public void ensureMultiLineReplacementFillsNotAllPlaceholdersIfTextIsShortEnoughFillingFromBottom()
+        throws RenderException {
+
+        // 28 characters
+        String text = "Lucy in the sky with diamonds";
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 12,
+            BuildablePDF.MultiLineTextFillMode.BOTTOM, "replace0", "replace1", "replace2", "replace3")
+            .build();
+
+        Mockito.verify(mockedPDFBuilder)
+            .renderSearchAndReplaceText(Matchers.any(byte[].class), replacementsCaptor.capture());
+
+        Map<String, String> replacements = replacementsCaptor.getValue();
+        Assert.assertEquals("Wrong amount of replacements", 4, replacements.size());
+
+        Assert.assertEquals("Wrong replacement for first line", "", replacements.get("replace0"));
+        Assert.assertEquals("Wrong replacement for second line", "Lucy in the", replacements.get("replace1"));
+        Assert.assertEquals("Wrong replacement for third line", "sky with", replacements.get("replace2"));
+        Assert.assertEquals("Wrong replacement for fourth line", "diamonds", replacements.get("replace3"));
     }
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void ensureThrowsIfNumberOfCharactersIsOkayButLineBreakResultsInNonFittingText() {
+    public void ensureMultiReplacementThrowsIfTextDoesNotFitDueToLengthOfWords() {
 
         // 60 characters - is fitting in theory to 3 placeholder à max. 20 characters
         String text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed";

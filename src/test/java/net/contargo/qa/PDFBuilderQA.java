@@ -1,5 +1,6 @@
 package net.contargo.qa;
 
+import net.contargo.print.pdf.BuildablePDF;
 import net.contargo.print.pdf.PDFBuilder;
 import net.contargo.print.pdf.QRSpec;
 import net.contargo.print.pdf.RenderException;
@@ -154,8 +155,9 @@ public class PDFBuilderQA {
         Path target = RESOURCES.resolve(MULTI_LINE_REPLACE_CHECK);
 
         PDFBuilder.fromTemplate(source)
-            .withMultiLineReplacement(veryLongText(), 210, placeholder.apply("FOOTER1"), placeholder.apply("FOOTER2"),
-                placeholder.apply("FOOTER3"), placeholder.apply("FOOTER4"))
+            .withMultiLineReplacement(veryLongText(), 210, BuildablePDF.MultiLineTextFillMode.BOTTOM,
+                    placeholder.apply("FOOTER1"), placeholder.apply("FOOTER2"), placeholder.apply("FOOTER3"),
+                    placeholder.apply("FOOTER4"))
             .build()
             .save(target);
         targets.add(target);
