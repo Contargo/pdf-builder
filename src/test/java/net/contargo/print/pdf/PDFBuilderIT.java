@@ -139,7 +139,7 @@ public class PDFBuilderIT {
         String[] searchValues = new String[4];
 
         for (int i = 0; i < 4; i++) {
-            searchValues[i] = "FOOTER" + i;
+            searchValues[i] = "FOOTER" + (i + 1);
         }
 
         // Ensure all of the placeholders exist in the PDF

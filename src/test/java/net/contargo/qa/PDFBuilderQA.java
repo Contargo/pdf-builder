@@ -154,8 +154,8 @@ public class PDFBuilderQA {
         Path target = RESOURCES.resolve(MULTI_LINE_REPLACE_CHECK);
 
         PDFBuilder.fromTemplate(source)
-            .withMultiLineReplacement(veryLongText(), 210, placeholder.apply("FOOTER3"), placeholder.apply("FOOTER2"),
-                placeholder.apply("FOOTER1"), placeholder.apply("FOOTER0"))
+            .withMultiLineReplacement(veryLongText(), 210, placeholder.apply("FOOTER1"), placeholder.apply("FOOTER2"),
+                placeholder.apply("FOOTER3"), placeholder.apply("FOOTER4"))
             .build()
             .save(target);
         targets.add(target);
