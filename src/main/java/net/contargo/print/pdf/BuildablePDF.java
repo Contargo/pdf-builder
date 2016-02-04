@@ -7,10 +7,7 @@ import java.io.InputStream;
 
 import java.nio.file.Path;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -168,6 +165,66 @@ public final class BuildablePDF {
 
         ASSERT_NOT_EMPTY.accept("text", text);
         ASSERT_NOT_NULL.accept("placeholders", placeholders);
+        assertCorrectMultiLineReplacementParameters(text, maxCharactersPerLine, placeholders);
+
+        LOG.debug("Execute multi line replacement --------------------");
+
+        // Split text to words
+        String[] words = text.split(WHITESPACE, Integer.MAX_VALUE);
+        LOG.debug("Number of words: " + words.length);
+
+        // Initialize replacement values
+        String[] replace = new String[placeholders.length];
+
+        for (int i = 0; i < replace.length; i++) {
+            replace[i] = "";
+        }
+
+        // Fill replacement values
+        int wordCounter = 0;
+        boolean allWordsCompleted = false;
+
+        for (int i = 0; i < replace.length; i++) {
+            // If all words of the text has already been used, the replacement value will be empty
+            if (allWordsCompleted) {
+                break;
+            }
+
+            // Fill the replacement value with all the words that fit in
+            while (replace[i].length() + words[wordCounter].length() <= maxCharactersPerLine) {
+                replace[i] = replace[i].concat(words[wordCounter]).concat(WHITESPACE);
+
+                // Stop the process if there are no words left
+                if (wordCounter == words.length - 1) {
+                    allWordsCompleted = true;
+
+                    break;
+                }
+
+                wordCounter += 1;
+            }
+
+            // Each replacement value represents a line, no need to have a whitespace at the end
+            if (replace[i].endsWith(WHITESPACE)) {
+                replace[i] = replace[i].substring(0, replace[i].length() - 1);
+            }
+        }
+
+        // Fill replacements map
+        for (int i = 0; i < placeholders.length; i++) {
+            LOG.debug("Replacement " + i + ": " + placeholders[i] + "=`" + replace[i] + "`");
+
+            this.replacements.put(placeholders[i], replace[i]);
+        }
+
+        LOG.debug("Done multi line replacement -----------------------");
+
+        return this;
+    }
+
+
+    private void assertCorrectMultiLineReplacementParameters(String text, int maxCharactersPerLine,
+        String... placeholders) {
 
         if (maxCharactersPerLine < 1) {
             throw new IllegalArgumentException("Invalid number of maximum characters per line: "
@@ -187,58 +244,5 @@ public final class BuildablePDF {
                     "The given text contains %d characters, but there are only %d lines with maximum %d characters each",
                     numberOfCharacters, numberOfPlaceholders, maxCharactersPerLine));
         }
-
-        // TODO: Refactor the shit out of it!
-
-        LOG.debug("Execute multi line replacement --------------------");
-
-        // Initialize replace values
-        String[] replace = new String[placeholders.length];
-
-        for (int i = 0; i < placeholders.length; i++) {
-            replace[i] = "";
-        }
-
-        // Split text to words
-        String[] words = text.split(WHITESPACE, Integer.MAX_VALUE);
-        LOG.debug("Number of words: " + words.length);
-
-        int wordCounter = 0;
-
-        boolean allWordsCompleted = false;
-
-        for (int i = 0; i < replace.length; i++) {
-            if (allWordsCompleted) {
-                break;
-            }
-
-            while (replace[i].length() + words[wordCounter].length() <= maxCharactersPerLine) {
-                replace[i] = replace[i].concat(words[wordCounter]);
-                replace[i] = replace[i].concat(WHITESPACE);
-
-                if (wordCounter == words.length - 1) {
-                    allWordsCompleted = true;
-
-                    break;
-                }
-
-                wordCounter += 1;
-            }
-
-            if (replace[i].endsWith(WHITESPACE)) {
-                replace[i] = replace[i].substring(0, replace[i].length() - 1);
-            }
-        }
-
-        // Fill replacements map
-        for (int i = 0; i < placeholders.length; i++) {
-            LOG.debug("Replacement " + i + ": " + placeholders[i] + "=`" + replace[i] + "`");
-
-            this.replacements.put(placeholders[i], replace[i]);
-        }
-
-        LOG.debug("Done multi line replacement -----------------------");
-
-        return this;
     }
 }
