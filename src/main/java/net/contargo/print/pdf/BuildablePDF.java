@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
@@ -33,10 +34,22 @@ public final class BuildablePDF {
      */
     private static final String[] LIGATURES = { "fi" };
 
-    private static final Consumer<String> ASSERT_VALID_SEARCH_VALUE = (String value) -> {
-        if (value == null || value.isEmpty()) {
-            throw new IllegalArgumentException("The search value must not be empty");
+    private static final BiConsumer<String, Object> ASSERT_NOT_NULL = (String name, Object value) -> {
+        if (value == null) {
+            throw new IllegalArgumentException(String.format("The %s must not be null", name));
         }
+    };
+
+    private static final BiConsumer<String, String> ASSERT_NOT_EMPTY = (String name, String value) -> {
+        ASSERT_NOT_NULL.accept(name, value);
+
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException(String.format("The %s must not be empty", name));
+        }
+    };
+
+    private static final Consumer<String> ASSERT_VALID_SEARCH_VALUE = (String value) -> {
+        ASSERT_NOT_EMPTY.accept("search value", value);
 
         for (String ligature : LIGATURES) {
             if (value.contains(ligature)) {
@@ -153,8 +166,21 @@ public final class BuildablePDF {
      */
     public BuildablePDF withMultiLineReplacement(String text, int maxCharactersPerLine, String... placeholders) {
 
+        ASSERT_NOT_EMPTY.accept("text", text);
+        ASSERT_NOT_NULL.accept("placeholders", placeholders);
+
+        if (maxCharactersPerLine < 1) {
+            throw new IllegalArgumentException("Invalid number of maximum characters per line: "
+                + maxCharactersPerLine);
+        }
+
         int numberOfPlaceholders = placeholders.length;
         int numberOfCharacters = text.length();
+
+        if (numberOfPlaceholders < 2) {
+            throw new IllegalArgumentException("At least two placeholders must be provided, but was: "
+                + numberOfPlaceholders);
+        }
 
         if (numberOfPlaceholders * maxCharactersPerLine < numberOfCharacters) {
             throw new IllegalArgumentException(String.format(

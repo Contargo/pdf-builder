@@ -14,6 +14,7 @@ import java.nio.file.Path;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 
 /**
@@ -158,15 +159,62 @@ public class BuildablePDFTest {
 
     // Multi-line text replacement -------------------------------------------------------------------------------------
 
+    @Test
+    public void ensureMultiLineReplacementThrowsIfTextIsEmpty() {
+
+        Consumer<String> assertFailsForEmptyText = (text) -> {
+            try {
+                new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0",
+                    "replace1");
+                Assert.fail("Should fail for empty text");
+            } catch (IllegalArgumentException ex) {
+                // Expected
+            }
+        };
+
+        assertFailsForEmptyText.accept(null);
+        assertFailsForEmptyText.accept("");
+    }
+
+
     @Test(expected = IllegalArgumentException.class)
-    public void ensureMultiLineReplacementThrowsIfTextIsTooLong() throws RenderException {
+    public void ensureMultiLineReplacementThrowsIfTextIsTooLong() {
 
         // 60 characters
         String text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed";
 
         // but only 2 lines à 20 characters
-        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1")
-            .build();
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1");
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureMultiLineReplacementThrowsIfNoSearchValueGiven() {
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement("Lorem ipsum", 10);
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureMultiLineReplacementThrowsIfOnlyOneSearchValueGiven() {
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement("Lorem ipsum", 10, "replace0");
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureMultiLineReplacementThrowsIfMaximumCharactersNumberIsNegative() {
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement("Lorem ipsum", -1, "replace0",
+            "replace1");
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void ensureMultiLineReplacementThrowsIfMaximumCharactersNumberIsZero() {
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement("Lorem ipsum", 0, "replace0",
+            "replace1");
     }
 
 
