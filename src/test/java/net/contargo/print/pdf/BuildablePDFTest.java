@@ -191,21 +191,23 @@ public class BuildablePDFTest {
 
 
     @Test
-    public void ensurePDFIsBuiltWithCorrectMultiLineReplacementWhenTextContainsNumbers() throws RenderException {
+    public void ensureMultiLineReplacementResultsInEmptyLineIfMorePlaceholdersThanLines() throws RenderException {
 
-        // 36 characters
-        String text = "Kto 100 255 700 700, BLZ 480 800 00";
+        // 28 characters
+        String text = "Lucy in the sky with diamonds";
 
-        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1")
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0", "replace1",
+            "replace2")
             .build();
 
         Mockito.verify(mockedPDFBuilder)
             .renderSearchAndReplaceText(Matchers.any(byte[].class), replacementsCaptor.capture());
 
         Map<String, String> replacements = replacementsCaptor.getValue();
-        Assert.assertEquals("Wrong amount of replacements", 2, replacements.size());
+        Assert.assertEquals("Wrong amount of replacements", 3, replacements.size());
 
-        Assert.assertEquals("Wrong replacement for first line", "Kto 100 255 700 700,", replacements.get("replace0"));
-        Assert.assertEquals("Wrong replacement for second line", "BLZ 480 800 00", replacements.get("replace1"));
+        Assert.assertEquals("Wrong replacement for first line", "Lucy in the sky with", replacements.get("replace0"));
+        Assert.assertEquals("Wrong replacement for second line", "diamonds", replacements.get("replace1"));
+        Assert.assertEquals("Wrong replacement for third line", "", replacements.get("replace2"));
     }
 }

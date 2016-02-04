@@ -154,7 +154,7 @@ public class PDFBuilderQA {
         Path target = RESOURCES.resolve(MULTI_LINE_REPLACE_CHECK);
 
         PDFBuilder.fromTemplate(source)
-            .withMultiLineReplacement(veryLongText(), 200, placeholder.apply("FOOTER3"), placeholder.apply("FOOTER2"),
+            .withMultiLineReplacement(veryLongText(), 210, placeholder.apply("FOOTER3"), placeholder.apply("FOOTER2"),
                 placeholder.apply("FOOTER1"), placeholder.apply("FOOTER0"))
             .build()
             .save(target);
@@ -164,8 +164,11 @@ public class PDFBuilderQA {
 
     private String veryLongText() {
 
-        return
-            "Contargo GmbH & Co.KG. · Sitz: Duisburg · AG Duisburg HRA 7682 · PhG: Contargo Verwaltungs GmbH, Duisburg · AG Duisburg HRB 11844 · Geschäftsführung: Heinrich Kerstgens, Thomas Löffler, Thomas Maaßen, Dr. Martin Neese · Es findet deutsches Recht Anwendung · Erfüllungs- und Gerichtsstand ist Duisburg · Ust-IdNr. DE 813870828 · St-Nr. 134/5844/0430 · Bankverbindung: Dresdner Bank, BLZ 480 800 00, Kto 100 255 700";
+        return "Contargo GmbH & Co.KG. · Sitz: Duisburg · AG Duisburg HRA 7682 · PhG: Contargo Verwaltungs GmbH, "
+            + "Duisburg · AG Duisburg HRB 11844 · Geschäftsführung: Heinrich Kerstgens, Thomas Löffler, Thomas Maaßen, "
+            + "Dr. Martin Neese · Es findet deutsches Recht Anwendung · Erfüllungs- und Gerichtsstand ist "
+            + "Duisburg · Ust-IdNr. DE 813870828 · St-Nr. 134/5844/0430 · Bankverbindung: Dresdner Bank, "
+            + "BLZ 480 800 00, Kto 100 255 700";
     }
 
 

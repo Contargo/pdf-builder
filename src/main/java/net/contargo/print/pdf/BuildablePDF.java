@@ -169,27 +169,25 @@ public final class BuildablePDF {
         }
 
         // Split text to words
-        String[] words = text.split(WHITESPACE);
+        String[] words = text.split(WHITESPACE, Integer.MAX_VALUE);
         System.out.println("Number of words: " + words.length);
 
         int wordCounter = 0;
 
+        boolean allWordsCompleted = false;
+
         for (int i = 0; i < replace.length; i++) {
-            System.out.println("Replace placeholder " + i);
+            if (allWordsCompleted) {
+                break;
+            }
 
             while (replace[i].length() + words[wordCounter].length() <= maxCharactersPerLine) {
-                System.out.println("Append word: `" + words[wordCounter] + "`");
-
                 replace[i] = replace[i].concat(words[wordCounter]);
                 replace[i] = replace[i].concat(WHITESPACE);
 
-                System.out.println("New value: `" + replace[i] + "`");
-
-                if (replace[i].contains("100 255 700")) {
-                    System.out.println("joooohoo");
-                }
-
                 if (wordCounter == words.length - 1) {
+                    allWordsCompleted = true;
+
                     break;
                 }
 
@@ -199,8 +197,6 @@ public final class BuildablePDF {
             if (replace[i].endsWith(WHITESPACE)) {
                 replace[i] = replace[i].substring(0, replace[i].length() - 1);
             }
-
-            System.out.println("Final normalization results in: `" + replace[i] + "`");
 
             System.out.println("");
         }
