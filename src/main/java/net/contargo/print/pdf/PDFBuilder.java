@@ -25,6 +25,8 @@ import java.util.function.BiConsumer;
    PDFBuilder.fromTemplate(template)
        .withReplacement("@name@", name)
        .withReplacement("@email@", email)
+       .withMultiLineReplacement(longText, maximumCharactersPerLine, BuildablePDF.MultiLineTextFillMode.BOTTOM,
+       "@line1@", "@line2@", "@line3@")
        .withQRCode(QRSpec.fromCode(code).withPosition(20, 50).withSize(145))
        .build()
        .save(result);

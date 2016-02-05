@@ -1,5 +1,6 @@
 package net.contargo.example;
 
+import net.contargo.print.pdf.BuildablePDF;
 import net.contargo.print.pdf.PDFBuilder;
 import net.contargo.print.pdf.QRSpec;
 import net.contargo.print.pdf.RenderException;
@@ -22,7 +23,8 @@ import java.nio.file.Path;
 public class Example {
 
     {
-        String name = "", email = "", code = "";
+        String name = "", email = "", code = "", longText = "";
+        int maximumCharactersPerLine = 0;
 
         Path docs = FileSystems.getDefault().getPath("documents");
         Path template = docs.resolve("template.pdf");
@@ -32,6 +34,8 @@ public class Example {
             PDFBuilder.fromTemplate(template)
                 .withReplacement("@name@", name)
                 .withReplacement("@email@", email)
+                .withMultiLineReplacement(longText, maximumCharactersPerLine, BuildablePDF.MultiLineTextFillMode.BOTTOM,
+                        "@line1@", "@line2@", "@line3@")
                 .withQRCode(QRSpec.fromCode(code).withPosition(20, 50).withSize(145))
                 .build()
                 .save(result);
