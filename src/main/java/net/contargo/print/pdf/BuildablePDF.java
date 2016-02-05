@@ -204,14 +204,11 @@ public final class BuildablePDF {
 
         LOG.debug("Execute multi line replacement --------------------");
 
-        // Split text to words
         String[] words = text.split(WHITESPACE, Integer.MAX_VALUE);
         LOG.debug("Number of words: " + words.length);
 
-        // Distribute words to fill placeholders
         String[] replace = distributeWordsToPlaceholders(words, numberOfPlaceholders, maxCharactersPerLine);
 
-        // Fill replacements map
         fillPlaceholdersWithReplacementValues(fillFrom, placeholders, replace);
 
         LOG.debug("Done multi line replacement -----------------------");
@@ -295,8 +292,10 @@ public final class BuildablePDF {
 
         if (MultiLineTextFillMode.BOTTOM.equals(fillFrom)) {
             // Do only use replacement values that have content
-            List<String> replacementValues = Arrays.asList(replace).stream().filter(value ->
-                        value != null && !value.isEmpty()).collect(Collectors.toList());
+            List<String> replacementValues = Arrays.asList(replace)
+                .stream()
+                .filter(value -> !value.isEmpty())
+                .collect(Collectors.toList());
 
             // Reverse order because filling from bottom to top
             Collections.reverse(replacementValues);
