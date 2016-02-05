@@ -53,7 +53,7 @@ public class PDFBuilder {
     private final PDFRenderer pdfRenderer;
     private final QRCodeRenderer qrRenderer;
 
-    protected PDFBuilder(PDFRenderer pdfRenderer, QRCodeRenderer qrRenderer) {
+    PDFBuilder(PDFRenderer pdfRenderer, QRCodeRenderer qrRenderer) {
 
         this.pdfRenderer = pdfRenderer;
         this.qrRenderer = qrRenderer;
@@ -106,7 +106,7 @@ public class PDFBuilder {
      *
      * @see  PDFRenderer#renderFromTemplate(Path)
      */
-    protected byte[] renderFromTemplate(Path template) throws RenderException {
+    byte[] renderFromTemplate(Path template) throws RenderException {
 
         ASSERT_NOT_NULL.accept("template", template);
 
@@ -125,7 +125,7 @@ public class PDFBuilder {
      *
      * @see  PDFRenderer#renderFromTemplate(InputStream)
      */
-    protected byte[] renderFromTemplate(InputStream template) throws RenderException {
+    byte[] renderFromTemplate(InputStream template) throws RenderException {
 
         ASSERT_NOT_NULL.accept("template", template);
 
@@ -145,7 +145,7 @@ public class PDFBuilder {
      *
      * @see  PDFRenderer#renderSearchAndReplaceText(byte[], Map)
      */
-    protected byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> text) throws RenderException {
+    byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> text) throws RenderException {
 
         ASSERT_NOT_NULL.accept("pdf", pdf);
         ASSERT_NOT_NULL.accept("text", text);
@@ -167,7 +167,7 @@ public class PDFBuilder {
      * @see  QRCodeRenderer#render(String, int)
      * @see  PDFRenderer#renderQRCodes(byte[], List)
      */
-    protected byte[] renderQRCodes(byte[] pdf, List<QRSpec> specs) throws RenderException {
+    byte[] renderQRCodes(byte[] pdf, List<QRSpec> specs) throws RenderException {
 
         ASSERT_NOT_NULL.accept("pdf", pdf);
         ASSERT_NOT_NULL.accept("specs", specs);
