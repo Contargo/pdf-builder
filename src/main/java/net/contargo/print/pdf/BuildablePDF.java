@@ -215,7 +215,9 @@ public final class BuildablePDF {
 
         String[] replace = distributeWordsToPlaceholders(words, numberOfPlaceholders, maxCharactersPerLine);
 
-        fillPlaceholdersWithReplacementValues(fillFrom, placeholders, replace);
+        Map<String, String> replacementsMap = createReplacementsMap(fillFrom, placeholders, replace);
+
+        this.replacements.putAll(replacementsMap);
 
         LOG.debug("Done multi line replacement -----------------------");
 
@@ -294,8 +296,10 @@ public final class BuildablePDF {
     }
 
 
-    private void fillPlaceholdersWithReplacementValues(MultiLineTextFillMode fillFrom, String[] placeholders,
+    private Map<String, String> createReplacementsMap(MultiLineTextFillMode fillFrom, String[] placeholders,
         String[] replace) {
+
+        Map<String, String> replacementMap = new HashMap<>();
 
         if (MultiLineTextFillMode.BOTTOM.equals(fillFrom)) {
             // Do only use replacement values that have content
@@ -318,14 +322,16 @@ public final class BuildablePDF {
 
                 LOG.debug("Replacement " + i + ": " + placeholders[i] + "=`" + replacementValue + "`");
 
-                this.replacements.put(placeholders[i], replacementValue);
+                replacementMap.put(placeholders[i], replacementValue);
             }
         } else {
             for (int i = 0; i < placeholders.length; i++) {
                 LOG.debug("Replacement " + i + ": " + placeholders[i] + "=`" + replace[i] + "`");
 
-                this.replacements.put(placeholders[i], replace[i]);
+                replacementMap.put(placeholders[i], replace[i]);
             }
         }
+
+        return replacementMap;
     }
 }
