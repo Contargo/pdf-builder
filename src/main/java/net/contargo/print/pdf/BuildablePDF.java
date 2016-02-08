@@ -200,17 +200,18 @@ public final class BuildablePDF {
     public BuildablePDF withMultiLineReplacement(String text, int maxCharactersPerLine, MultiLineTextFillMode fillFrom,
         String... placeholders) {
 
-        ASSERT_NOT_EMPTY.accept("text", text);
         ASSERT_NOT_NULL.accept("placeholders", placeholders);
 
+        String content = text == null ? "" : text;
+
         int numberOfPlaceholders = placeholders.length;
-        int numberOfCharacters = text.length();
+        int numberOfCharacters = content.length();
 
         assertCorrectMultiLineReplacementParameters(numberOfCharacters, maxCharactersPerLine, numberOfPlaceholders);
 
         LOG.debug("Execute multi line replacement --------------------");
 
-        String[] words = text.split(WHITESPACE, Integer.MAX_VALUE);
+        String[] words = content.split(WHITESPACE, Integer.MAX_VALUE);
         LOG.debug("Number of words: " + words.length);
 
         String[] replace = distributeWordsToPlaceholders(words, numberOfPlaceholders, maxCharactersPerLine);

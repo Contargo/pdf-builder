@@ -160,24 +160,6 @@ public class BuildablePDFTest {
     // Multi-line text replacement, see #14181 -------------------------------------------------------------------------
 
     @Test
-    public void ensureMultiLineReplacementThrowsIfTextIsEmpty() {
-
-        Consumer<String> assertFailsForEmptyText = (text) -> {
-            try {
-                new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(text, 20, "replace0",
-                    "replace1");
-                Assert.fail("Should fail for empty text");
-            } catch (IllegalArgumentException ex) {
-                // Expected
-            }
-        };
-
-        assertFailsForEmptyText.accept(null);
-        assertFailsForEmptyText.accept("");
-    }
-
-
-    @Test
     public void ensureMultiLineReplacementThrowsIfTextIsTooLong() {
 
         Consumer<String> assertFailsForTooLongText = (text) -> {
@@ -232,6 +214,39 @@ public class BuildablePDFTest {
 
         assertFailsForInvalidMaximumCharacters.accept(-1);
         assertFailsForInvalidMaximumCharacters.accept(0);
+    }
+
+
+    @Test
+    public void ensureMultiLineReplacementWorksWithNullText() throws RenderException {
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement(null, 20, "replace0", "replace1")
+            .build();
+
+        Mockito.verify(mockedPDFBuilder)
+            .renderSearchAndReplaceText(Matchers.any(byte[].class), replacementsCaptor.capture());
+
+        Map<String, String> replacements = replacementsCaptor.getValue();
+        Assert.assertEquals("Wrong amount of replacements", 2, replacements.size());
+
+        Assert.assertEquals("Wrong replacement for first line", "", replacements.get("replace0"));
+        Assert.assertEquals("Wrong replacement for second line", "", replacements.get("replace1"));
+    }
+
+
+    @Test
+    public void ensureMultiLineReplacementWorksWithEmptyText() throws RenderException {
+
+        new BuildablePDF(mockedPath, mockedPDFBuilder).withMultiLineReplacement("", 20, "replace0", "replace1").build();
+
+        Mockito.verify(mockedPDFBuilder)
+            .renderSearchAndReplaceText(Matchers.any(byte[].class), replacementsCaptor.capture());
+
+        Map<String, String> replacements = replacementsCaptor.getValue();
+        Assert.assertEquals("Wrong amount of replacements", 2, replacements.size());
+
+        Assert.assertEquals("Wrong replacement for first line", "", replacements.get("replace0"));
+        Assert.assertEquals("Wrong replacement for second line", "", replacements.get("replace1"));
     }
 
 
