@@ -68,7 +68,7 @@ public class PDFBuilder {
      */
     public static BuildablePDF fromTemplate(Path template) {
 
-        ASSERT_NOT_NULL.accept("template", template);
+        ASSERT_NOT_NULL.accept("template", template); // NOSONAR - constants does not always make sense
 
         PDFBuilder builder = new PDFBuilder(new PDFBoxRenderer(), new QRGenRenderer());
 
@@ -87,7 +87,7 @@ public class PDFBuilder {
      */
     public static BuildablePDF fromTemplate(InputStream template) {
 
-        ASSERT_NOT_NULL.accept("template", template);
+        ASSERT_NOT_NULL.accept("template", template); // NOSONAR - constants does not always make sense
 
         PDFBuilder builder = new PDFBuilder(new PDFBoxRenderer(), new QRGenRenderer());
 
@@ -108,7 +108,7 @@ public class PDFBuilder {
      */
     byte[] renderFromTemplate(Path template) throws RenderException {
 
-        ASSERT_NOT_NULL.accept("template", template);
+        ASSERT_NOT_NULL.accept("template", template); // NOSONAR - constants does not always make sense
 
         return pdfRenderer.renderFromTemplate(template);
     }
@@ -127,7 +127,7 @@ public class PDFBuilder {
      */
     byte[] renderFromTemplate(InputStream template) throws RenderException {
 
-        ASSERT_NOT_NULL.accept("template", template);
+        ASSERT_NOT_NULL.accept("template", template); // NOSONAR - constants does not always make sense
 
         return pdfRenderer.renderFromTemplate(template);
     }
