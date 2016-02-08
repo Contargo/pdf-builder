@@ -5,7 +5,7 @@
 
     <groupId>net.contargo.print</groupId>
     <artifactId>pdf-builder</artifactId>
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.3.0</version>
 
     <name>PDF Builder</name>
 
@@ -15,6 +15,7 @@
         <java.version>1.8</java.version>
         <pdfbox.version>1.8.11</pdfbox.version>
         <qrgen.version>2.0</qrgen.version>
+        <slf4j.version>1.7.14</slf4j.version>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.reportPath>${project.build.directory}/coverage-reports/jacoco-ut.exec</sonar.jacoco.reportPath>
         <sonar.jacoco.itReportPath>${project.build.directory}/coverage-reports/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -71,14 +72,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.14</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <!-- Log binding only for test -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.14</version>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
 

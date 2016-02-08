@@ -1,6 +1,15 @@
 PDF-Builder Changes
 ===================
 
+## v0.3.0 (Release on 08.02.2016)
+
+### Features:
+
+* Adds multi line replacement feature to be able to distribute a long text
+  to multiple placeholders.
+
+* Update to PDFBox version 1.8.11.
+
 ## v0.2.1 (Release on 17.12.2015)
 
 ### Features:
