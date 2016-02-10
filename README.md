@@ -23,6 +23,9 @@ Well good for you, that's just what this library does.
 
 * String interpolation of search-replace pairs, or from a string
   map.
+  
+* Multi-line string interpolation, providing distribution of a
+  text over a number of lines.
 
 * Rendering of QR-codes, with size and position specification.
 
@@ -42,12 +45,15 @@ templates for interpolation and rendering. At the current time, only
 Adobe Illustrator successfully produces a non-subsetted and embedded
 PDF.
 
-### Characters "fi" are encoded to "~"
+### Ligatures cannot be used as placeholders
 
-With the complexity of the PDF format and standard, comes the baggage
-of subtle bugs and problems. It has been shown that some placeholders
-words that use the letters "fi" are escaped in the PDF (Tj operand)
-as a "~" (tilde), rendering the placeholder useless. Beware!
+In PDFs [ligatures](https://en.wikipedia.org/wiki/Typographic_ligature)
+are traditionally supported for optimal type setting. This can cause
+word-mangling which may break string-interpolation. 
+
+For example the letters "fi" are encoded as a ligature in the PDF
+(Tj operand) as a "~" (tilde), rendering the placeholder useless.
+Beware!
 
 ## Development
 
