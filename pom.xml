@@ -34,8 +34,8 @@
     </repositories>
 
     <scm>
-        <connection>scm:git:ssh://git@contargo/lib/pdf-builder</connection>
-        <developerConnection>scm:git:ssh://git@contargo/lib/pdf-builder</developerConnection>
+        <connection>scm:git:ssh://git@gitlab-contargo.synyx.de:lib/pdf-builder.git</connection>
+        <developerConnection>scm:git:ssh://git@gitlab-contargo.synyx.de:lib/pdf-builder.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
