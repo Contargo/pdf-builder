@@ -23,7 +23,7 @@ Well good for you, that's just what this library does.
 
 * String interpolation of search-replace pairs, or from a string
   map.
-  
+
 * Multi-line string interpolation, providing distribution of a
   text over a number of lines.
 
@@ -49,7 +49,7 @@ PDF.
 
 In PDFs [ligatures](https://en.wikipedia.org/wiki/Typographic_ligature)
 are traditionally supported for optimal type setting. This can cause
-word-mangling which may break string-interpolation. 
+word-mangling which may break string-interpolation.
 
 For example the letters "fi" are encoded as a ligature in the PDF
 (Tj operand) as a "~" (tilde), rendering the placeholder useless.
@@ -80,5 +80,13 @@ everything looks ok.
 
 Feel free to play around with this tool, to try out the features of
 the PDF builder.
+
+## License
+
+This project is distributed under the Apache 2.0 License. The full set of
+terms and conditions can be seen in the [LICENSE](LICENSE) file.
+
+See the [NOTICE](NOTICE) file distributed with this work for additional
+information regarding copyright ownership.
 
 Happy hacking!
