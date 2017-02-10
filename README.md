@@ -1,6 +1,8 @@
 PDF Builder
 ===========
 
+[![Build Status](https://travis-ci.org/Contargo/pdf-builder.svg?branch=master)](https://travis-ci.org/Contargo/pdf-builder)
+
 A library tool that provides a pragmatic solution to PDF-generation
 and manipulation.
 
