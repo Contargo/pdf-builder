@@ -35,11 +35,11 @@ public final class QRSpec {
     }
 
 
-    QRCode render(QRCodeRenderer renderer) throws RenderException {
+    PDFImage render(QRCodeRenderer renderer) throws RenderException {
 
         byte[] qrCode = renderer.render(code, size);
 
-        return new QRCode(qrCode, x, y);
+        return new PDFImage(qrCode, x, y);
     }
 
 

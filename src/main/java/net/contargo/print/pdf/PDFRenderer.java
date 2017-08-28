@@ -1,9 +1,7 @@
 package net.contargo.print.pdf;
 
 import java.io.InputStream;
-
 import java.nio.file.Path;
-
 import java.util.List;
 import java.util.Map;
 
@@ -58,16 +56,17 @@ public interface PDFRenderer {
     byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> text) throws RenderException;
 
 
+    
     /**
-     * Renders the list of given QR codes into the provided pdf document.
+     * Renders the list of given images into the provided pdf document.
      *
      * @param  pdf  document byte array, to render on. Must not necessarily be copied since it is assumed that the
      *              renderer is only part of an internal process.
-     * @param  codes  to render into the document
+     * @param  images  to render into the document
      *
      * @return  the changed PDF document byte array
      *
      * @throws  RenderException  in case a failure occurs during rendering
      */
-    byte[] renderQRCodes(byte[] pdf, List<QRCode> codes) throws RenderException;
+    byte[] renderImages(byte[] pdf, List<PDFImage> images) throws RenderException;
 }
