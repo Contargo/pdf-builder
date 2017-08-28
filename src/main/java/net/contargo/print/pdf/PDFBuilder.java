@@ -1,9 +1,7 @@
 package net.contargo.print.pdf;
 
 import java.io.InputStream;
-
 import java.nio.file.Path;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -172,13 +170,34 @@ public class PDFBuilder {
         ASSERT_NOT_NULL.accept("pdf", pdf);
         ASSERT_NOT_NULL.accept("specs", specs);
 
-        List<QRCode> codes = new ArrayList<>();
+        List<PDFImage> codes = new ArrayList<>();
 
         // No stream operation, the QRRenderer throws a checked exception.
         for (QRSpec spec : specs) {
             codes.add(spec.render(qrRenderer));
         }
 
-        return pdfRenderer.renderQRCodes(pdf, codes);
+        return pdfRenderer.renderImages(pdf, codes);
+    }
+    
+    
+    /**
+     * Delegates to PDF renderers.
+     *
+     * @param  pdf  document as byte array
+     * @param  images  list of images to add
+     *
+     * @return  the PDF document as a byte array
+     *
+     * @throws  RenderException  in case rendering fails
+     *
+     * @see  PDFRenderer#renderQRCodes(byte[], List)
+     */
+    byte[] renderImages(byte[] pdf, List<PDFImage> images) throws RenderException {
+
+        ASSERT_NOT_NULL.accept("pdf", pdf);
+        ASSERT_NOT_NULL.accept("images", images);
+
+        return pdfRenderer.renderImages(pdf, images);
     }
 }

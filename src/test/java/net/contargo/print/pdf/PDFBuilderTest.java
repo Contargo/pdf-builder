@@ -1,26 +1,21 @@
 package net.contargo.print.pdf;
 
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
-
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.io.InputStream;
-
-import java.nio.file.Path;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -39,7 +34,7 @@ public class PDFBuilderTest {
     @Mock
     private Path mockedInputStreamTemplate;
     @Captor
-    private ArgumentCaptor<List<QRCode>> qrCodesCaptor;
+    private ArgumentCaptor<List<PDFImage>> qrCodesCaptor;
 
     @Test(expected = IllegalArgumentException.class)
     public void ensureThrowsOnNullPathTemplateArgument() {
@@ -130,7 +125,7 @@ public class PDFBuilderTest {
 
         Mockito.verify(mockedQRCodeRenderer).render(Matchers.eq("foobar"), Matchers.anyInt());
 
-        Mockito.verify(mockedPDFRenderer).renderQRCodes(Matchers.eq(bytes), qrCodesCaptor.capture());
+        Mockito.verify(mockedPDFRenderer).renderImages(Matchers.eq(bytes), qrCodesCaptor.capture());
 
         Assert.assertEquals("Wrong amount", 1, qrCodesCaptor.getValue().size());
     }

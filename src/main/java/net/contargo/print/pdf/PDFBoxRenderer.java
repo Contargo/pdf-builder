@@ -1,5 +1,20 @@
 package net.contargo.print.pdf;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.imageio.ImageIO;
+
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSString;
 import org.apache.pdfbox.exceptions.COSVisitorException;
@@ -14,24 +29,6 @@ import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.apache.pdfbox.util.PDFOperator;
-
-import java.awt.image.BufferedImage;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import java.nio.file.Path;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import javax.imageio.ImageIO;
 
 
 /**
@@ -193,7 +190,7 @@ public class PDFBoxRenderer implements PDFRenderer {
 
 
     @Override
-    public byte[] renderQRCodes(byte[] pdf, List<QRCode> codes) throws RenderException {
+    public byte[] renderImages(byte[] pdf, List<PDFImage> images) throws RenderException {
 
         ByteArrayInputStream documentIn = new ByteArrayInputStream(pdf);
         ByteArrayOutputStream documentOut = new ByteArrayOutputStream();
@@ -204,39 +201,39 @@ public class PDFBoxRenderer implements PDFRenderer {
             List<PDPage> pages = documentCatalog.getAllPages();
 
             if (pages.size() > 1) {
-                throw new IllegalStateException("Cannot add QR code to document with more pages than 1.");
+                throw new IllegalStateException("Cannot add image to document with more pages than 1.");
             }
 
             PDPage page = pages.iterator().next();
             PDRectangle rectangle = page.getMediaBox();
 
             try(PDPageContentStream contentStream = new PDPageContentStream(document, page, true, false)) {
-                for (QRCode qr : codes) {
-                    addQRCode(document, rectangle, contentStream, qr);
+                for (PDFImage image : images) {
+                    addImage(document, rectangle, contentStream, image);
                 }
             }
 
             document.save(documentOut);
         } catch (IOException | COSVisitorException e) {
-            throw new RenderException("Rendering QR-codes in PDF failed.", e);
+            throw new RenderException("Rendering images in PDF failed.", e);
         }
 
         return documentOut.toByteArray();
     }
 
 
-    private void addQRCode(PDDocument document, PDRectangle rectangle, PDPageContentStream contentStream, QRCode qrCode)
+    private void addImage(PDDocument document, PDRectangle rectangle, PDPageContentStream contentStream, PDFImage rawImage)
         throws IOException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        qrCode.save(out);
+        rawImage.save(out);
 
         InputStream in = new ByteArrayInputStream(out.toByteArray());
         BufferedImage imageBuffer = ImageIO.read(in);
         PDXObjectImage image = new PDPixelMap(document, imageBuffer);
 
-        float x = calculateCoordinate(qrCode.getX(), rectangle.getWidth(), image.getWidth());
-        float y = calculateCoordinate(qrCode.getY(), rectangle.getHeight(), image.getHeight());
+        float x = calculateCoordinate(rawImage.getX(), rectangle.getWidth(), image.getWidth());
+        float y = calculateCoordinate(rawImage.getY(), rectangle.getHeight(), image.getHeight());
 
         contentStream.drawXObject(image, x, y, image.getWidth(), image.getHeight());
     }

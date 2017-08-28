@@ -5,18 +5,18 @@ import java.io.OutputStream;
 
 
 /**
- * A rendered QR code, providing it's byte array and position information.
+ * A image, providing it's byte array and position information.
  *
  * @author  Olle Törnström - toernstroem@synyx.de
  * @since  0.1
  */
-public class QRCode {
+public class PDFImage {
 
     private final byte[] data;
     private final int x;
     private final int y;
 
-    public QRCode(byte[] data, int x, int y) {
+    public PDFImage(byte[] data, int x, int y) {
 
         this.data = data.clone();
         this.x = x;

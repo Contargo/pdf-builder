@@ -1,12 +1,7 @@
 package net.contargo.print.pdf;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
-
 import java.nio.file.Path;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +12,9 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -78,6 +76,7 @@ public final class BuildablePDF {
     private InputStream templateAsStream;
     private final Map<String, String> replacements;
     private final List<QRSpec> qrCodes;
+    private final List<PDFImage> images;
 
     BuildablePDF(Path template, PDFBuilder builder) {
 
@@ -85,6 +84,7 @@ public final class BuildablePDF {
         this.templateAsPath = template;
         this.replacements = new HashMap<>();
         this.qrCodes = new ArrayList<>();
+        this.images = new ArrayList<>();
     }
 
 
@@ -94,6 +94,7 @@ public final class BuildablePDF {
         this.templateAsStream = template;
         this.replacements = new HashMap<>();
         this.qrCodes = new ArrayList<>();
+        this.images = new ArrayList<>();
     }
 
     /**
@@ -112,6 +113,7 @@ public final class BuildablePDF {
 
         pdf = builder.renderSearchAndReplaceText(pdf, replacements);
         pdf = builder.renderQRCodes(pdf, qrCodes);
+        pdf = builder.renderImages(pdf, images);
 
         return new PDFDocument(pdf);
     }
@@ -162,6 +164,20 @@ public final class BuildablePDF {
     public BuildablePDF withQRCode(QRSpec qrSpec) {
 
         this.qrCodes.add(qrSpec);
+
+        return this;
+    }
+    
+    /**
+     * Add a Image to this builder.
+     *
+     * @param  image image content and desired position
+     *
+     * @return  this builder for chaining
+     */
+    public BuildablePDF withImage(PDFImage image) {
+
+        this.images.add(image);
 
         return this;
     }
