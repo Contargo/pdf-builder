@@ -1,20 +1,20 @@
 package net.contargo.print.pdf;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import org.junit.runner.RunWith;
-
-import org.mockito.*;
-
-import org.mockito.runners.MockitoJUnitRunner;
-
 import java.nio.file.Path;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 
 /**
@@ -42,6 +42,8 @@ public class BuildablePDFTest {
             .thenReturn(bytes);
         Mockito.when(mockedPDFBuilder.renderQRCodes(Mockito.any(byte[].class), Mockito.anyListOf(QRSpec.class)))
             .thenReturn(bytes);
+        Mockito.when(mockedPDFBuilder.renderImages(Mockito.any(byte[].class), Mockito.anyListOf(PDFImage.class)))
+        	.thenReturn(bytes);
     }
 
 
