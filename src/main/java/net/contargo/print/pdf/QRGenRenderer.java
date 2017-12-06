@@ -38,26 +38,14 @@ public class QRGenRenderer implements QRCodeRenderer {
 
     private ErrorCorrectionLevel toErrorCorrectionLevel(int level) {
 
-        final ErrorCorrectionLevel errorCorrectionLevel;
-
-        switch (level) {
-            case 7:
-                errorCorrectionLevel = ErrorCorrectionLevel.L;
-                break;
-
-            case 15:
-                errorCorrectionLevel = ErrorCorrectionLevel.M;
-                break;
-
-            case 25:
-                errorCorrectionLevel = ErrorCorrectionLevel.Q;
-                break;
-
-            case 30:
-            default:
-                errorCorrectionLevel = ErrorCorrectionLevel.H;
+        if (level == 7) {
+            return ErrorCorrectionLevel.L;
+        } else if (level == 15) {
+            return ErrorCorrectionLevel.M;
+        } else if (level == 25) {
+            return ErrorCorrectionLevel.Q;
+        } else {
+            return ErrorCorrectionLevel.H;
         }
-
-        return errorCorrectionLevel;
     }
 }
