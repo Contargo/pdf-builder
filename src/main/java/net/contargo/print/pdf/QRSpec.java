@@ -33,6 +33,7 @@ public final class QRSpec {
     private int y;
     private int size;
     private Level level;
+    private boolean margin;
 
     private QRSpec(String code) {
 
@@ -41,6 +42,7 @@ public final class QRSpec {
         this.y = 0;
         this.size = 125; // NOSONAR
         this.level = Level.High;
+        this.margin = true;
     }
 
     /**
@@ -58,7 +60,7 @@ public final class QRSpec {
 
     PDFImage render(QRCodeRenderer renderer) throws RenderException {
 
-        byte[] qrCode = renderer.render(code, size, level.val);
+        byte[] qrCode = renderer.render(code, size, level.val, margin);
 
         return new PDFImage(qrCode, x, y);
     }
@@ -132,10 +134,42 @@ public final class QRSpec {
      * @param  level  to set
      *
      * @return  this specification for chaining
+     *
+     * @since  0.4
      */
     public QRSpec withErrorCorrection(Level level) {
 
         this.level = level;
+
+        return this;
+    }
+
+
+    /**
+     * Tries to disable the silent-zone default margin.
+     *
+     * @return  this spec for chaining
+     *
+     * @since  0.4
+     */
+    public QRSpec withoutMargin() {
+
+        this.margin = false;
+
+        return this;
+    }
+
+
+    /**
+     * Enables the silent-zone default margin (on by default).
+     *
+     * @return  this spec by default
+     *
+     * @since  0.4
+     */
+    public QRSpec withMargin() {
+
+        this.margin = true;
 
         return this;
     }

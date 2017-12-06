@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -133,11 +134,11 @@ public class PDFBuilderTest {
         byte[] bytes = new byte[0];
         List<QRSpec> specs = new ArrayList<>(Collections.singletonList(QRSpec.fromCode("foobar")));
 
-        when(mockedQRCodeRenderer.render(anyString(), anyInt(), anyInt())).thenReturn(bytes);
+        when(mockedQRCodeRenderer.render(anyString(), anyInt(), anyInt(), anyBoolean())).thenReturn(bytes);
 
         new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(bytes, specs);
 
-        verify(mockedQRCodeRenderer).render(eq("foobar"), anyInt(), eq(Level.High.val));
+        verify(mockedQRCodeRenderer).render(eq("foobar"), anyInt(), eq(Level.High.val), eq(true));
         verify(mockedPDFRenderer).renderImages(Matchers.eq(bytes), qrCodesCaptor.capture());
 
         Assert.assertEquals("Wrong amount", 1, qrCodesCaptor.getValue().size());

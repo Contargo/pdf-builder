@@ -7,6 +7,10 @@ PDF-Builder Changes
 
 * Adding QA tests for QR code rendere (QRGen).
 
+* Allows the user to toggle the default silent-zone margin on
+  QR-codes on/off. NOTE: Actual rendered results may still have
+  a margin - take care.
+
 ## v0.3.1 (Release on 08.02.2016)
 
 ### Change Request:

@@ -35,10 +35,10 @@ public class QRRendererQA {
 
     private void execute() throws IOException, RenderException {
 
-        generateQrCode(20);
-        generateQrCode(60);
-        generateQrCode(125);
-        generateQrCode(250);
+        generateQrCode(20, false);
+        generateQrCode(60, false);
+        generateQrCode(125, false);
+        generateQrCode(250, false);
 
         alertUserAndWaitForEnter();
         clearGeneratedTargets();
@@ -46,14 +46,14 @@ public class QRRendererQA {
     }
 
 
-    private void generateQrCode(int size) throws IOException, RenderException {
+    private void generateQrCode(int size, boolean margin) throws IOException, RenderException {
 
         List<Integer> levels = Arrays.asList(7, 15, 25, 30);
 
         for (int level : levels) {
             Path path = RESOURCES.resolve(String.format("size-%d-error-%d-qr.png", size, level));
             targets.add(path);
-            Files.write(path, new QRGenRenderer().render(UUID.randomUUID().toString(), size, level));
+            Files.write(path, new QRGenRenderer().render(UUID.randomUUID().toString(), size, level, margin));
         }
     }
 
