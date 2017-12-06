@@ -5,7 +5,7 @@
 
     <groupId>net.contargo.print</groupId>
     <artifactId>pdf-builder</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1-SNAPSHOT</version>
 
     <name>PDF Builder</name>
 
