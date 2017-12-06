@@ -1,7 +1,7 @@
 PDF-Builder Changes
 ===================
 
-## v0.3.0 [NEXT]
+## v0.4.0
 
 * Adds the capability to set error correction level for QR-codes.
 
