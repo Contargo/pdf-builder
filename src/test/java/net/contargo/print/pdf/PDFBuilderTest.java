@@ -1,21 +1,35 @@
 package net.contargo.print.pdf;
 
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import net.contargo.print.pdf.QRSpec.Level;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import org.junit.runner.RunWith;
+
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.InputStream;
+
+import java.nio.file.Path;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -119,13 +133,12 @@ public class PDFBuilderTest {
         byte[] bytes = new byte[0];
         List<QRSpec> specs = new ArrayList<>(Collections.singletonList(QRSpec.fromCode("foobar")));
 
-        Mockito.when(mockedQRCodeRenderer.render(Matchers.anyString(), Matchers.anyInt())).thenReturn(bytes);
+        when(mockedQRCodeRenderer.render(anyString(), anyInt(), anyInt())).thenReturn(bytes);
 
         new PDFBuilder(mockedPDFRenderer, mockedQRCodeRenderer).renderQRCodes(bytes, specs);
 
-        Mockito.verify(mockedQRCodeRenderer).render(Matchers.eq("foobar"), Matchers.anyInt());
-
-        Mockito.verify(mockedPDFRenderer).renderImages(Matchers.eq(bytes), qrCodesCaptor.capture());
+        verify(mockedQRCodeRenderer).render(eq("foobar"), anyInt(), eq(Level.High.val));
+        verify(mockedPDFRenderer).renderImages(Matchers.eq(bytes), qrCodesCaptor.capture());
 
         Assert.assertEquals("Wrong amount", 1, qrCodesCaptor.getValue().size());
     }

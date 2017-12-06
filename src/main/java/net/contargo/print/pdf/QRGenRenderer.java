@@ -17,14 +17,47 @@ public class QRGenRenderer implements QRCodeRenderer {
     @Override
     public byte[] render(String code, int size) throws RenderException {
 
+        return render(code, size, -1);
+    }
+
+
+    @Override
+    public byte[] render(String code, int size, int level) throws RenderException {
+
         try {
             return QRCode.from(code)
-                .withErrorCorrection(ErrorCorrectionLevel.H)
+                .withErrorCorrection(toErrorCorrectionLevel(level))
                 .withSize(size, size)
                 .stream()
                 .toByteArray();
         } catch (QRGenerationException e) {
             throw new RenderException("QR-code render failed.", e);
         }
+    }
+
+
+    private ErrorCorrectionLevel toErrorCorrectionLevel(int level) {
+
+        final ErrorCorrectionLevel errorCorrectionLevel;
+
+        switch (level) {
+            case 7:
+                errorCorrectionLevel = ErrorCorrectionLevel.L;
+                break;
+
+            case 15:
+                errorCorrectionLevel = ErrorCorrectionLevel.M;
+                break;
+
+            case 25:
+                errorCorrectionLevel = ErrorCorrectionLevel.Q;
+                break;
+
+            case 30:
+            default:
+                errorCorrectionLevel = ErrorCorrectionLevel.H;
+        }
+
+        return errorCorrectionLevel;
     }
 }

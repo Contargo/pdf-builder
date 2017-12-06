@@ -8,11 +8,31 @@ package net.contargo.print.pdf;
  */
 public final class QRSpec {
 
+    /**
+     * The available correction levels to use, as defined by the standard
+     * https://en.wikipedia.org/wiki/QR_code#Error_correction.
+     */
+    public enum Level {
+
+        Low(7),
+        Medium(15),
+        Quartile(25),
+        High(30);
+
+        int val;
+
+        Level(int val) {
+
+            this.val = val;
+        }
+    }
+
     private final String code;
 
     private int x;
     private int y;
     private int size;
+    private Level level;
 
     private QRSpec(String code) {
 
@@ -20,6 +40,7 @@ public final class QRSpec {
         this.x = 0;
         this.y = 0;
         this.size = 125; // NOSONAR
+        this.level = Level.High;
     }
 
     /**
@@ -37,7 +58,7 @@ public final class QRSpec {
 
     PDFImage render(QRCodeRenderer renderer) throws RenderException {
 
-        byte[] qrCode = renderer.render(code, size);
+        byte[] qrCode = renderer.render(code, size, level.val);
 
         return new PDFImage(qrCode, x, y);
     }
@@ -100,6 +121,21 @@ public final class QRSpec {
     public QRSpec withSize(int size) {
 
         this.size = size;
+
+        return this;
+    }
+
+
+    /**
+     * Set the error correction level of this specification.
+     *
+     * @param  level  to set
+     *
+     * @return  this specification for chaining
+     */
+    public QRSpec withErrorCorrection(Level level) {
+
+        this.level = level;
 
         return this;
     }
