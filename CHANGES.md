@@ -5,6 +5,9 @@ PDF-Builder Changes
 
 * Upgrade from PDFBox `1.8.x` to `2.0.x` for default PDF rendering.
 
+* Upgrade from QRGen `2.0` to `2.3.0`, adding direct dependency on the
+  artifact through https://jitpack.io.
+  
 ## v0.4.0
 
 * Adds the capability to set error correction level for QR-codes.

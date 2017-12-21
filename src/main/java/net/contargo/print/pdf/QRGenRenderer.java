@@ -3,7 +3,6 @@ package net.contargo.print.pdf;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
-import net.glxn.qrgen.core.AbstractQRCode;
 import net.glxn.qrgen.core.exception.QRGenerationException;
 import net.glxn.qrgen.javase.QRCode;
 
@@ -20,9 +19,7 @@ public class QRGenRenderer implements QRCodeRenderer {
     public byte[] render(String code, int size, int level, boolean margin) throws RenderException {
 
         try {
-            AbstractQRCode c = QRCode.from(code)
-                    .withErrorCorrection(toErrorCorrectionLevel(level))
-                    .withSize(size, size);
+            QRCode c = QRCode.from(code).withErrorCorrection(toErrorCorrectionLevel(level)).withSize(size, size);
 
             if (!margin) {
                 c = c.withHint(EncodeHintType.MARGIN, 0);
