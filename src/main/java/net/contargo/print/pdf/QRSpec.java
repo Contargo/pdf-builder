@@ -3,6 +3,27 @@ package net.contargo.print.pdf;
 /**
  * Describing a QR code to render.
  *
+ * <p>Using a nifty builder pattern, a QR-code spec can easily be built for to be appended on a PDF page.</p>
+ *
+ * <pre><code>
+        QRSpec spec = QRSpec.fromCode("some-code")
+                             .withPosition(42, 7)
+                             .withSize(233)
+                             .withoutMargin()
+                             .withErrorCorrection(Level.Low);
+   </code></pre>
+ *
+ * <p>Positioning can be done either by X or Y axis separately, or using the {@code withPosition(x, y)} method. Please
+ * note that positioning on PDF pages, are done <strong>from the lower left corner.</strong></p>
+ *
+ * <p>In the example above we also override the automatic border, or silent-zone, that is part of the QR-code standard.
+ * Please note that this is not always deterministic, so different error correction modes will honor the flag
+ * differently.</p>
+ *
+ * <p>Lastly, we can adjust the error correction level, setting the level to {@code Low}, {@code Medium},
+ * {@code Quartile} or {@code High}. More information is here: https://en.wikipedia.org/wiki/QR_code#Error_correction.
+ * </p>
+ *
  * @author  Olle Törnström - toernstroem@synyx.de
  * @since  0.1
  */
@@ -67,9 +88,11 @@ public final class QRSpec {
 
 
     /**
-     * Set the y position for this specification.
+     * Set the y position for this specification, as an offset from the page left edge.
      *
-     * @param  y  position
+     * <p>NOTE: The page origin is at the bottom lower left corner.</p>
+     *
+     * @param  y  position offset, from the left side of the page
      *
      * @return  this specification for chaining
      */
@@ -82,9 +105,11 @@ public final class QRSpec {
 
 
     /**
-     * Set the x position for this specification.
+     * Set the x position for this specification, specified as an offset from the page bottom.
      *
-     * @param  x  position
+     * <p>NOTE: The page origin is at the bottom lower left corner.</p>
+     *
+     * @param  x  position offset, from the bottom of the page
      *
      * @return  this specification for chaining
      */
@@ -97,10 +122,12 @@ public final class QRSpec {
 
 
     /**
-     * Set the x and y position of this specification.
+     * Set the x and y position of this specification, as an offset coordinate from the page bottom left corner.
      *
-     * @param  x  position
-     * @param  y  position
+     * <p>NOTE: The page origin is at the bottom lower left corner.</p>
+     *
+     * @param  x  position offset, from the bottom of the page
+     * @param  y  position offset, from the left edge of the page
      *
      * @return  this specification for chaining
      */

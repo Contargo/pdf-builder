@@ -1,34 +1,33 @@
 package net.contargo.print.pdf;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import javax.imageio.ImageIO;
-
+import org.apache.pdfbox.contentstream.operator.Operator;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSString;
-import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdfparser.PDFStreamParser;
 import org.apache.pdfbox.pdfwriter.ContentStreamWriter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
+import org.apache.pdfbox.pdmodel.PDPageTree;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.common.PDStream;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
-import org.apache.pdfbox.util.PDFOperator;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import java.nio.file.Path;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 
 /**
@@ -53,7 +52,7 @@ public class PDFBoxRenderer implements PDFRenderer {
 
         try(PDDocument doc = PDDocument.load(template.toFile())) {
             doc.save(out);
-        } catch (COSVisitorException | IOException e) {
+        } catch (IOException e) {
             throw new RenderException("Parsing the template failed.", e);
         }
 
@@ -68,7 +67,7 @@ public class PDFBoxRenderer implements PDFRenderer {
 
         try(PDDocument doc = PDDocument.load(template)) {
             doc.save(out);
-        } catch (COSVisitorException | IOException e) {
+        } catch (IOException e) {
             throw new RenderException("Parsing the template failed.", e);
         }
 
@@ -76,7 +75,6 @@ public class PDFBoxRenderer implements PDFRenderer {
     }
 
 
-    @SuppressWarnings("unchecked")
     @Override
     public byte[] renderSearchAndReplaceText(byte[] pdf, Map<String, String> texts) throws RenderException {
 
@@ -84,10 +82,10 @@ public class PDFBoxRenderer implements PDFRenderer {
         ByteArrayOutputStream documentOut = new ByteArrayOutputStream();
 
         try(PDDocument doc = PDDocument.load(documentIn)) {
-            List<PDPage> pages = doc.getDocumentCatalog().getAllPages();
+            PDPageTree pages = doc.getDocumentCatalog().getPages();
             parsePages(texts, doc, pages);
             doc.save(documentOut);
-        } catch (IOException | COSVisitorException e) {
+        } catch (IOException e) {
             throw new RenderException("Search and replace PDF text failed.", e);
         }
 
@@ -95,7 +93,7 @@ public class PDFBoxRenderer implements PDFRenderer {
     }
 
 
-    private void parsePages(Map<String, String> texts, PDDocument doc, List<PDPage> pages) throws IOException {
+    private void parsePages(Map<String, String> texts, PDDocument doc, PDPageTree pages) throws IOException {
 
         for (PDPage page : pages) {
             parsePage(texts, doc, page);
@@ -105,7 +103,7 @@ public class PDFBoxRenderer implements PDFRenderer {
 
     private void parsePage(Map<String, String> texts, PDDocument doc, PDPage page) throws IOException {
 
-        PDFStreamParser parser = new PDFStreamParser(page.getContents());
+        PDFStreamParser parser = new PDFStreamParser(page);
         parser.parse();
 
         List<?> tokens = parser.getTokens();
@@ -126,8 +124,8 @@ public class PDFBoxRenderer implements PDFRenderer {
         Object previous = null;
 
         for (Object current : tokens) {
-            if (current instanceof PDFOperator) {
-                updateToken(texts, previous, (PDFOperator) current);
+            if (current instanceof Operator) {
+                updateToken(texts, previous, (Operator) current);
             }
 
             previous = current;
@@ -135,13 +133,13 @@ public class PDFBoxRenderer implements PDFRenderer {
     }
 
 
-    private void updateToken(Map<String, String> texts, Object args, PDFOperator operator) throws IOException {
+    private void updateToken(Map<String, String> texts, Object args, Operator operator) throws IOException {
 
         if (args == null) {
             return;
         }
 
-        String operation = operator.getOperation();
+        String operation = operator.getName();
 
         if (SHOW_STRING_OP.equals(operation)) {
             searchAndReplaceInCOSString(texts, (COSString) args);
@@ -155,8 +153,8 @@ public class PDFBoxRenderer implements PDFRenderer {
 
         String string = cosString.getString();
         String result = searchAndReplace(texts, string);
-        cosString.reset();
-        cosString.append(result.getBytes(ISO_8859_1));
+        cosString.setDirect(true);
+        cosString.setValue(result.getBytes(ISO_8859_1));
     }
 
 
@@ -178,9 +176,9 @@ public class PDFBoxRenderer implements PDFRenderer {
     private void searchAndReplaceInCOSArray(Map<String, String> texts, COSArray cosArray) throws IOException {
 
         String string = StreamSupport.stream(cosArray.spliterator(), false)
-            .filter(e -> e instanceof COSString)
-            .map(s -> ((COSString) s).getString())
-            .collect(Collectors.joining());
+                .filter(e -> e instanceof COSString)
+                .map(s -> ((COSString) s).getString())
+                .collect(Collectors.joining());
 
         String result = searchAndReplace(texts, string);
         COSString cosString = new COSString(result.getBytes(ISO_8859_1));
@@ -197,24 +195,23 @@ public class PDFBoxRenderer implements PDFRenderer {
 
         try(PDDocument document = PDDocument.load(documentIn)) {
             PDDocumentCatalog documentCatalog = document.getDocumentCatalog();
-            @SuppressWarnings("unchecked")
-            List<PDPage> pages = documentCatalog.getAllPages();
+            PDPageTree pages = documentCatalog.getPages();
 
-            if (pages.size() > 1) {
+            if (pages.getCount() > 1) {
                 throw new IllegalStateException("Cannot add image to document with more pages than 1.");
             }
 
             PDPage page = pages.iterator().next();
             PDRectangle rectangle = page.getMediaBox();
 
-            try(PDPageContentStream contentStream = new PDPageContentStream(document, page, true, false)) {
+            try(PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.APPEND, false)) {
                 for (PDFImage image : images) {
                     addImage(document, rectangle, contentStream, image);
                 }
             }
 
             document.save(documentOut);
-        } catch (IOException | COSVisitorException e) {
+        } catch (IOException e) {
             throw new RenderException("Rendering images in PDF failed.", e);
         }
 
@@ -222,20 +219,18 @@ public class PDFBoxRenderer implements PDFRenderer {
     }
 
 
-    private void addImage(PDDocument document, PDRectangle rectangle, PDPageContentStream contentStream, PDFImage rawImage)
-        throws IOException {
+    private void addImage(PDDocument document, PDRectangle rectangle, PDPageContentStream contentStream,
+        PDFImage rawImage) throws IOException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         rawImage.save(out);
 
-        InputStream in = new ByteArrayInputStream(out.toByteArray());
-        BufferedImage imageBuffer = ImageIO.read(in);
-        PDXObjectImage image = new PDPixelMap(document, imageBuffer);
+        PDImageXObject image = PDImageXObject.createFromByteArray(document, out.toByteArray(), null);
 
         float x = calculateCoordinate(rawImage.getX(), rectangle.getWidth(), image.getWidth());
         float y = calculateCoordinate(rawImage.getY(), rectangle.getHeight(), image.getHeight());
 
-        contentStream.drawXObject(image, x, y, image.getWidth(), image.getHeight());
+        contentStream.drawImage(image, x, y, image.getWidth(), image.getHeight());
     }
 
 

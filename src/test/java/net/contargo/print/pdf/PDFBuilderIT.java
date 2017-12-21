@@ -1,7 +1,7 @@
 package net.contargo.print.pdf;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripper;
 
 import org.junit.Assert;
 import org.junit.Test;

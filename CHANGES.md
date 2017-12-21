@@ -1,6 +1,10 @@
 PDF-Builder Changes
 ===================
 
+## v0.5.0
+
+* Upgrade from PDFBox `1.8.x` to `2.0.x` for default PDF rendering.
+
 ## v0.4.0
 
 * Adds the capability to set error correction level for QR-codes.
