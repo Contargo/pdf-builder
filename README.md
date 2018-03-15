@@ -3,8 +3,6 @@ PDF Builder
 
 [![Build Status](https://travis-ci.org/Contargo/pdf-builder.svg?branch=master)](https://travis-ci.org/Contargo/pdf-builder)
 
-**WIP: We're currently working on deploying to the Sonatype OSS repository. In the mean time, please consider building and deploying the project locally (mvn install).**
-
 A library tool that provides a pragmatic solution to PDF-generation
 and manipulation.
 
