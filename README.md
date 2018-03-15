@@ -2,9 +2,25 @@ PDF Builder
 ===========
 
 [![Build Status](https://travis-ci.org/Contargo/pdf-builder.svg?branch=master)](https://travis-ci.org/Contargo/pdf-builder)
+[![](https://jitpack.io/v/Contargo/pdf-builder.svg)](https://jitpack.io/#Contargo/pdf-builder)
 
-A library tool that provides a pragmatic solution to PDF-generation
-and manipulation.
+A library tool that provides a pragmatic solution to PDF-generation and
+manipulation.
+
+## Getting started
+
+Using the `pdf-builder` as a library in your project, means simply including it
+as a Maven dependency. We recommend using [Jitpack](https://jitpack.io) to
+resolve the dependency:
+
+```xml
+<dependency>
+  <!-- From Jitpack-repo -->
+  <groupId>com.github.Contargo</groupId>
+  <artifactId>pdf-builder</artifactId>
+  <version>${SOME-TAG}</version>
+</dependency>
+```
 
 ## General Idea
 
