@@ -1,7 +1,6 @@
 PDF Builder
 ===========
 
-[![Build Status](https://travis-ci.org/Contargo/pdf-builder.svg?branch=master)](https://travis-ci.org/Contargo/pdf-builder)
 [![](https://jitpack.io/v/Contargo/pdf-builder.svg)](https://jitpack.io/#Contargo/pdf-builder)
 
 A library tool that provides a pragmatic solution to PDF-generation and
