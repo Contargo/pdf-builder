@@ -1,6 +1,10 @@
 PDF-Builder Changes
 ===================
 
+## v0.5.1
+
+* Dependabot security updates: junit and pdfbox.
+
 ## v0.5.0
 
 * Upgrade from PDFBox `1.8.x` to `2.0.x` for default PDF rendering.
